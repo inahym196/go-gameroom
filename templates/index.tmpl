@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-{{ template "head" .}}
+{{ template "head" . }}
 
 <body>
-    {{ template "header" .}}
+    {{ template "header" . }}
     <div id="lobby" class="container ">
         <div class="row">
             <div class="col-md-6 mt-1 p-1">
@@ -11,6 +11,7 @@
                     <h3 class="card-header">ルーム一覧</h3>
                     <div class="card-body">
                         <p class="card-text">好きな部屋を選んで入ってください</p>
+                        {{ template "user-card" . }}
                         <div class="row">
                             {{ template "room-card" 1}}
                             {{ template "room-card" 2}}

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,6 +10,9 @@ import (
 )
 
 func main() {
+
+	url := "http://localhost:8000/api/v1/boards/0/"
+
 	engine := gin.Default()
 	m := melody.New()
 	engine.Static("/public", "./public")
@@ -28,7 +33,14 @@ func main() {
 		m.HandleRequest(c.Writer, c.Request)
 	})
 	m.HandleMessage(func(s *melody.Session, msg []byte) {
-		m.Broadcast(msg)
+
+		resp, err := http.Get(url)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer resp.Body.Close()
+		byteArray, _ := ioutil.ReadAll(resp.Body)
+		m.Broadcast(byteArray)
 	})
 	engine.Run("127.0.0.1:3000")
 }

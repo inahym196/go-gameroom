@@ -8,11 +8,12 @@ function initWebsocket() {
     ws.onopen = function (event) {
         wsOpened = true;
         console.log("ws connected");
-        ws.send('hello server');
+        ws.send('request board');
     };
     ws.onmessage = function (msg) {
         if (msg.data) {
-            console.log("recieved : " + msg.data);
+            const board = JSON.parse(msg.data);
+            console.log(board);
         }
     };
 }
