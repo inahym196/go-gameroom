@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style type="text/css" media="screen">
+        @import url("public/css/index.css");
+    </style>
+    <title>{{.title}}</title>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-secondary">
+            <a href="/" class="navbar-brand mx-3">{{.title}}</a>
+            <span id="headerRoomName" class="navber-text"></span>
+        </nav>
+    </header>
+    <div id="lobby" class="container ">
+        <div class="row">
+            <div class="col-md-6 mt-1 p-1">
+                <div class="card shadow-sm">
+                    <h3 class="card-header">ルーム一覧</h3>
+                    <div class="card-body">
+                        <p class="card-text">好きな部屋を選んで入ってください</p>
+                        <div class="row">
+                            <div class="col px-1">
+                                <div class="card">
+                                    <h5 class="card-header">room 1</h5>
+                                    <div class="card-body">
+                                        <p class="card-text">待機中...</p>
+                                        <a href="/rooms/room1" class="btn btn-primary">参加</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col px-1">
+                                <div class="card">
+                                    <h5 class="card-header">room 2</h5>
+                                    <div class="card-body">
+                                        <p class="card-text">待機中...</p>
+                                        <a href="/rooms/room2" class="btn btn-primary">参加</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col px-1">
+                                <div class="card">
+                                    <h5 class="card-header">room 3</h5>
+                                    <div class="card-body">
+                                        <p class="card-text">待機中...</p>
+                                        <a href="/rooms/room3" class="btn btn-primary">参加</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mt-1 p-1">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h3 class="mb-0">説明</h3>
+                        <p>
+                        <ul>
+                            <li>既存のルームに参加可能</li>
+                            <li>どちらかの接続が切れた場合はリセット</li>
+                            <li>iphone,Macでの動作確認済み</li>
+                            <li>firefox88.0での動作確認済み</li>
+                        </ul>
+                        <h4>ルール</h4>
+                        <ul>
+                            <li>ルームホストが先攻</li>
+                            <li>同じ形（×か〇）もしくは色（ピンクかグリーン）のピースを5つ直線状に並べた方が勝者</li>
+                        </ul>
+                        <h4>更新</h4>
+                        <ul>
+                            <li>2022/09/04: 試用版作成開始</li>
+                        </ul>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
