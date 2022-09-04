@@ -1,0 +1,11 @@
+{{ define "room-card" }}
+<div class="col px-1">
+    <div class="card">
+        <h5 class="card-header">room {{.}}</h5>
+        <div class="card-body">
+            <p class="card-text">待機中...</p>
+            <a href="/rooms/{{.}}" class="btn btn-primary">参加</a>
+        </div>
+    </div>
+</div>
+{{ end }}

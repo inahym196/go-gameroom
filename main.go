@@ -15,5 +15,12 @@ func main() {
 			"title": "Go GameRoom",
 		})
 	})
+	engine.GET("/rooms/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		c.HTML(http.StatusOK, "room.tmpl", gin.H{
+			"title": "Go GameRoom",
+			"id":    id,
+		})
+	})
 	engine.Run("127.0.0.1:3000")
 }
