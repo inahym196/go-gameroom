@@ -1,35 +1,36 @@
-"use strict";
+
+
 const url = "ws://" + window.location.host + window.location.pathname + "/ws";
 var wsOpened = false;
-function createDice(context, x, y, grid, length) {
+
+function createDice(context: CanvasRenderingContext2D, x: number, y: number, grid: number, length: number) {
     if ([0, grid].includes(x) || [0, grid].includes(y)) {
         createDice6(context, length);
-    }
-    else if ([1, grid - 1].includes(x) || [1, grid - 1].includes(y)) {
+    } else if ([1, grid - 1].includes(x) || [1, grid - 1].includes(y)) {
         createDice4(context, length);
-    }
-    else if ([2, grid - 2].includes(x) || [2, grid - 2].includes(y)) {
+    } else if ([2, grid - 2].includes(x) || [2, grid - 2].includes(y)) {
         if ([2, grid - 2].includes(x) && [2, grid - 2].includes(y)) {
             createDice1(context, length, 12);
-        }
-        else {
+        } else {
             createDice2(context, length);
         }
-    }
-    else {
+    } else {
         createDice1(context, length, 8);
     }
 }
-function createDice1(context, length, radius) {
+
+function createDice1(context: CanvasRenderingContext2D, length: number, radius: number) {
     drawCircle(context, length / 2, length / 2, radius);
 }
-function createDice2(context, length) {
+
+function createDice2(context: CanvasRenderingContext2D, length: number) {
     const [short, long] = [(length / 7) * 2, (length / 7) * 5];
     const radius = 6;
     drawCircle(context, short, length / 2, radius);
     drawCircle(context, long, length / 2, radius);
 }
-function createDice4(context, length) {
+
+function createDice4(context: CanvasRenderingContext2D, length: number) {
     const [short, long] = [(length / 7) * 2, (length / 7) * 5];
     const radius = 6;
     drawCircle(context, short, short, radius);
@@ -37,7 +38,8 @@ function createDice4(context, length) {
     drawCircle(context, long, long, radius);
     drawCircle(context, long, short, radius);
 }
-function createDice6(context, length) {
+
+function createDice6(context: CanvasRenderingContext2D, length: number) {
     const radius = 6;
     context.save();
     for (let i = 0; i < 2; i++) {
@@ -48,20 +50,39 @@ function createDice6(context, length) {
     }
     context.restore();
 }
-function drawCircle(context, posX, posY, radius) {
+function drawCircle(context: CanvasRenderingContext2D, posX: number, posY: number, radius: number) {
     context.moveTo(radius + posX, posY);
     context.arc(posX, posY, radius, 0, Math.PI * 2, true);
 }
+
+interface Board {
+    width: number,
+    height: number,
+    center: { x: number, y: number }
+}
+
+interface PieceArea {
+    length: number,
+    grid: number,
+    x: number,
+    y: number,
+    center: number,
+    pieceLength: number
+}
+
+
 class View {
-    constructor(canvas, userAgent) {
-        this.context = canvas.getContext('2d');
-        const board = { width: 640, height: 520, center: { x: 640 / 2, y: 520 / 2 } };
-        const pieceArea = { length: 500, grid: 9, x: 70, y: 10, center: 500 / 2, pieceLength: 500 / 10 };
+    context: CanvasRenderingContext2D
+    constructor(canvas: HTMLCanvasElement, userAgent: string) {
+        this.context = canvas.getContext('2d')!;
+        const board: Board = { width: 640, height: 520, center: { x: 640 / 2, y: 520 / 2 } }
+        const pieceArea: PieceArea = { length: 500, grid: 9, x: 70, y: 10, center: 500 / 2, pieceLength: 500 / 10 }
         canvas.width = board.width;
         canvas.height = board.height;
         this.drawBoard(board, pieceArea);
     }
-    createRoundRect(ctx, x, y, width, height, radius) {
+
+    createRoundRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
         ctx.moveTo(x + radius, y);
         ctx.lineTo(x + width - radius, y);
         ctx.arcTo(x + width, y, x + width, y + radius, radius);
@@ -73,11 +94,15 @@ class View {
         ctx.arcTo(x, y, x + radius, y, radius);
         ctx.closePath();
     }
-    drawBoardFrame(context, board) {
+
+    drawBoardFrame(context: CanvasRenderingContext2D, board: Board) {
         context.save();
         context.beginPath();
-        const gradient = (context, board) => {
-            const _gradient = context.createRadialGradient(board.center.x, board.center.x, 0, board.center.y, board.center.y, board.width);
+        const gradient = (context: CanvasRenderingContext2D, board: Board) => {
+            const _gradient = context.createRadialGradient(
+                board.center.x, board.center.x, 0,
+                board.center.y, board.center.y, board.width
+            );
             _gradient.addColorStop(0, '#444444');
             _gradient.addColorStop(1, '#222222');
             return _gradient;
@@ -90,7 +115,8 @@ class View {
         context.stroke();
         context.restore();
     }
-    drawBoardPieceArea(context, pieceArea) {
+
+    drawBoardPieceArea(context: CanvasRenderingContext2D, pieceArea: PieceArea) {
         context.save();
         context.translate(pieceArea.x, pieceArea.y);
         context.beginPath();
@@ -111,7 +137,8 @@ class View {
         context.stroke();
         context.restore();
     }
-    drawDices(context, pieceArea) {
+
+    drawDices(context: CanvasRenderingContext2D, pieceArea: PieceArea) {
         context.save();
         context.translate(pieceArea.x, pieceArea.y);
         context.beginPath();
@@ -132,7 +159,8 @@ class View {
         context.stroke();
         context.restore();
     }
-    drawLineupPieceArea(context, pieceArea) {
+
+    drawLineupPieceArea(context: CanvasRenderingContext2D, pieceArea: PieceArea) {
         context.save();
         context.translate(pieceArea.x + pieceArea.length, pieceArea.y);
         context.beginPath();
@@ -142,15 +170,15 @@ class View {
         context.shadowOffsetX = 2;
         context.shadowOffsetY = 1;
         for (let i = 1; i < pieceArea.grid + 1; i++) {
-            if (i === 5)
-                continue;
+            if (i === 5) continue;
             context.moveTo(pieceArea.pieceLength, i * pieceArea.pieceLength);
             context.arc(30, i * pieceArea.pieceLength, 23, 0, Math.PI * 2);
         }
         context.fill();
         context.restore();
     }
-    drawPointArea(context, pieceArea) {
+
+    drawPointArea(context: CanvasRenderingContext2D, pieceArea: PieceArea) {
         context.save();
         context.translate(pieceArea.x, pieceArea.y);
         context.shadowColor = '#555555';
@@ -166,7 +194,8 @@ class View {
         context.fill();
         context.restore();
     }
-    drawWinSet(context, pieceArea) {
+
+    drawWinSet(context: CanvasRenderingContext2D, pieceArea: PieceArea) {
         context.save();
         context.translate(pieceArea.x, pieceArea.y);
         context.shadowColor = '#555555';
@@ -185,7 +214,8 @@ class View {
         context.fill();
         context.restore();
     }
-    drawBoard(board, pieceArea) {
+
+    drawBoard(board: Board, pieceArea: PieceArea) {
         const context = this.context;
         this.drawBoardFrame(context, board);
         this.drawBoardPieceArea(context, pieceArea);
@@ -196,9 +226,9 @@ class View {
         context.restore();
     }
 }
-const canvas = document.getElementById('screen');
+const canvas = <HTMLCanvasElement>document.getElementById('screen')
 if (!(canvas instanceof HTMLCanvasElement)) {
-    throw new Error('#screen is cannot ref');
+    throw new Error('#screen is cannot ref')
 }
 const userAgent = navigator.userAgent;
 const view = new View(canvas, userAgent);
