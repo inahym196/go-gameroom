@@ -55,21 +55,33 @@ function drawCircle(context, posX, posY, radius) {
     context.arc(posX, posY, radius, 0, Math.PI * 2, true);
 }
 
+const get_board = () => {
+    const _board = {};
+    _board.width = 640;
+    _board.height = 520;
+    _board.center = { x: _board.width / 2, y: _board.height / 2 };
+    return _board;
+};
+
+const get_pieceArea = () => {
+    _pieceArea = {};
+    _pieceArea.length = 500;
+    _pieceArea.grid = 9;
+    _pieceArea.x = 70;
+    _pieceArea.y = 10;
+    _pieceArea.center = _pieceArea.length / 2;
+    _pieceArea.pieceLength = _pieceArea.length / (_pieceArea.grid + 1);
+    return _pieceArea;
+};
+
 class View {
     constructor(canvas, userAgent) {
-        this.canvas = canvas;
         this.context = canvas.getContext('2d');
-        this.canvas.width = 640;
-        this.canvas.height = 520;
-        const board = {};
-        board.length = 500;
-        board.posX = 70;
-        board.posY = 10;
-        board.center = board.length / 2;
-        board.grid = 9;
-        board.scaleLength = board.length / (board.grid + 1);
-        this.board = board;
-        this.drawBoard();
+        const board = get_board();
+        const pieceArea = get_pieceArea();
+        canvas.width = board.width;
+        canvas.height = board.height;
+        this.drawBoard(board, pieceArea);
     }
 
     createRoundRect(ctx, x, y, width, height, radius) {
@@ -86,27 +98,29 @@ class View {
     }
 
     drawBoardFrame(context, board) {
+        context.save();
         context.beginPath();
-        const gradient = context.createRadialGradient(
-            board.center, board.center, 0,
-            board.center, board.center, this.canvas.width
-        );
-        gradient.addColorStop(0, '#444444');
-        gradient.addColorStop(1, '#222222');
-        context.fillStyle = gradient;
+        const gradient = (context, board) => {
+            const _gradient = context.createRadialGradient(
+                board.center.x, board.center.x, 0,
+                board.center.y, board.center.y, board.width
+            );
+            _gradient.addColorStop(0, '#444444');
+            _gradient.addColorStop(1, '#222222');
+            return _gradient;
+        };
+        context.fillStyle = gradient(context, board);
         context.strokeStyle = '#444444';
         context.lineWidth = 2;
-        this.createRoundRect(
-            context, -board.posX, -board.posY,
-            board.length + board.posX * 2,
-            board.length + board.posY * 2,
-            50
-        );
+        this.createRoundRect(context, 0, 0, board.width, board.height, 50);
         context.fill();
         context.stroke();
+        context.restore();
     }
 
-    drawBoardPieceArea(context, board) {
+    drawBoardPieceArea(context, pieceArea) {
+        context.save();
+        context.translate(pieceArea.x, pieceArea.y);
         context.beginPath();
         context.strokeStyle = 'black';
         context.lineWidth = 1;
@@ -114,18 +128,21 @@ class View {
         context.shadowOffsetX = -1;
         context.shadowOffsetY = -1;
         context.shadowColor = 'silver';
-        for (let y = 0; y < board.grid + 1; y++) {
-            for (let x = 0; x < board.grid + 1; x++) {
+        for (let y = 0; y < pieceArea.grid + 1; y++) {
+            for (let x = 0; x < pieceArea.grid + 1; x++) {
                 context.save();
-                context.translate(x * board.scaleLength, y * board.scaleLength);
-                this.createRoundRect(context, 1, 1, board.scaleLength - 2, board.scaleLength - 2, board.scaleLength / 10);
+                context.translate(x * pieceArea.pieceLength, y * pieceArea.pieceLength);
+                this.createRoundRect(context, 1, 1, pieceArea.pieceLength - 2, pieceArea.pieceLength - 2, pieceArea.pieceLength / 10);
                 context.restore();
             }
         }
         context.stroke();
+        context.restore();
     }
 
-    drawDices(context, board) {
+    drawDices(context, pieceArea) {
+        context.save();
+        context.translate(pieceArea.x, pieceArea.y);
         context.beginPath();
         context.strokeStyle = '#464646';
         context.lineWidth = 1;
@@ -133,36 +150,39 @@ class View {
         context.shadowOffsetX = -1;
         context.shadowOffsetY = -1;
         context.shadowColor = 'rgba(30,30,30,1)';
-        for (let y = 0; y < board.grid + 1; y++) {
-            for (let x = 0; x < board.grid + 1; x++) {
+        for (let y = 0; y < pieceArea.grid + 1; y++) {
+            for (let x = 0; x < pieceArea.grid + 1; x++) {
                 context.save();
-                context.translate(x * board.scaleLength, y * board.scaleLength);
-                createDice(context, x, y, board.grid, board.scaleLength);
+                context.translate(x * pieceArea.pieceLength, y * pieceArea.pieceLength);
+                createDice(context, x, y, pieceArea.grid, pieceArea.pieceLength);
                 context.restore();
             }
         }
         context.stroke();
+        context.restore();
     }
-    drawLineupPieceArea(context, board) {
+
+    drawLineupPieceArea(context, pieceArea) {
         context.save();
-        context.translate(board.length, 0);
+        context.translate(pieceArea.x + pieceArea.length, pieceArea.y);
         context.beginPath();
         context.shadowColor = '#555555';
         context.fillStyle = 'rgba(46,46,46,1)';
         context.shadowBlur = 1;
         context.shadowOffsetX = 2;
         context.shadowOffsetY = 1;
-        for (let i = 1; i < board.grid + 1; i++) {
+        for (let i = 1; i < pieceArea.grid + 1; i++) {
             if (i === 5) continue;
-            context.moveTo(board.scaleLength, i * board.scaleLength);
-            context.arc(30, i * board.scaleLength, 23, 0, Math.PI * 2);
+            context.moveTo(pieceArea.pieceLength, i * pieceArea.pieceLength);
+            context.arc(30, i * pieceArea.pieceLength, 23, 0, Math.PI * 2);
         }
         context.fill();
         context.restore();
     }
 
-    drawPointArea(context, board) {
+    drawPointArea(context, pieceArea) {
         context.save();
+        context.translate(pieceArea.x, pieceArea.y);
         context.shadowColor = '#555555';
         context.fillStyle = 'rgba(46,46,46,1)';
         context.shadowBlur = 1;
@@ -176,7 +196,8 @@ class View {
         context.fill();
         context.restore();
     }
-    drawWinSet(context, board) {
+
+    drawWinSet(context) {
         context.save();
         context.shadowColor = '#555555';
         context.fillStyle = 'rgba(46,46,46,1)';
@@ -195,14 +216,12 @@ class View {
         context.restore();
     }
 
-    drawBoard() {
+    drawBoard(board, pieceArea) {
         const context = this.context;
-        const board = this.board;
-        context.translate(board.posX, board.posY);
         this.drawBoardFrame(context, board);
-        this.drawBoardPieceArea(context, board);
-        this.drawDices(context, board);
-        this.drawLineupPieceArea(context, board);
+        this.drawBoardPieceArea(context, pieceArea);
+        this.drawDices(context, pieceArea);
+        this.drawLineupPieceArea(context, pieceArea);
         context.restore();
     }
 }
