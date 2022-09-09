@@ -57,11 +57,9 @@ function drawCircle(context, posX, posY, radius) {
 
 class View {
     constructor(canvas, userAgent) {
-        this.canvas = canvas;
         this.context = canvas.getContext('2d');
-        this.board = {};
-        this.canvas.width = 640;
-        this.canvas.height = 520;
+        canvas.width = 640;
+        canvas.height = 520;
         const board = {};
         board.length = 500;
         board.posX = 70;
@@ -70,28 +68,6 @@ class View {
         board.grid = 9;
         board.scaleLength = board.length / (board.grid + 1);
         this.board = board;
-        //if (/iPhone|Android.+Mobile/.test(userAgent)) {
-        //this.isMobile = true;
-        //this.canvas.width = 1280;
-        //this.canvas.height = 1080;
-        //this.board.length = 500;
-        //this.board.posY = (this.canvas.height - this.board.length) / 2;
-        //} else {
-        //this.canvas.width = 1280;
-        //this.canvas.height = 720;
-        //this.board.length = 500;
-        //this.board.posY = (this.canvas.height - this.board.length) / 4;
-        //}
-        //this.board.center = this.board.length / 2;
-        //this.board.grid = 9;
-        //this.board.posX = (this.canvas.width - this.board.length) / 2;
-        //this.board.scaleLength = this.board.length / (this.board.grid + 1);
-        //this.lineupArea = {
-        //width: 100,
-        //height: 600,
-        //posX: this.board.posX + this.board.length,
-        //posY: this.board.posY,
-        //};
         this.drawBoard();
     }
 
@@ -112,7 +88,7 @@ class View {
         context.beginPath();
         const gradient = context.createRadialGradient(
             board.center, board.center, 0,
-            board.center, board.center, 600
+            board.center, board.center, this.canvas.width
         );
         gradient.addColorStop(0, '#444444');
         gradient.addColorStop(1, '#222222');
@@ -140,8 +116,8 @@ class View {
         for (let y = 0; y < board.grid + 1; y++) {
             for (let x = 0; x < board.grid + 1; x++) {
                 context.save();
-                context.translate(x * 50, y * 50);
-                this.createRoundRect(context, 1, 1, 48, 48, 5);
+                context.translate(x * board.scaleLength, y * board.scaleLength);
+                this.createRoundRect(context, 1, 1, board.scaleLength - 2, board.scaleLength - 2, board.scaleLength / 10);
                 context.restore();
             }
         }
@@ -159,7 +135,7 @@ class View {
         for (let y = 0; y < board.grid + 1; y++) {
             for (let x = 0; x < board.grid + 1; x++) {
                 context.save();
-                context.translate(x * 50, y * 50);
+                context.translate(x * board.scaleLength, y * board.scaleLength);
                 createDice(context, x, y, board.grid, board.scaleLength);
                 context.restore();
             }
@@ -175,10 +151,10 @@ class View {
         context.shadowBlur = 1;
         context.shadowOffsetX = 2;
         context.shadowOffsetY = 1;
-        for (let i = 1; i < 10; i++) {
+        for (let i = 1; i < board.grid + 1; i++) {
             if (i === 5) continue;
-            context.moveTo(50, i * 50);
-            context.arc(30, i * 50, 23, 0, Math.PI * 2);
+            context.moveTo(board.scaleLength, i * board.scaleLength);
+            context.arc(30, i * board.scaleLength, 23, 0, Math.PI * 2);
         }
         context.fill();
         context.restore();
