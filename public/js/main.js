@@ -57,9 +57,10 @@ function drawCircle(context, posX, posY, radius) {
 
 class View {
     constructor(canvas, userAgent) {
+        this.canvas = canvas;
         this.context = canvas.getContext('2d');
-        canvas.width = 640;
-        canvas.height = 520;
+        this.canvas.width = 640;
+        this.canvas.height = 520;
         const board = {};
         board.length = 500;
         board.posX = 70;
