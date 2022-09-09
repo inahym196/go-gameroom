@@ -197,8 +197,9 @@ class View {
         context.restore();
     }
 
-    drawWinSet(context) {
+    drawWinSet(context, pieceArea) {
         context.save();
+        context.translate(pieceArea.x, pieceArea.y);
         context.shadowColor = '#555555';
         context.fillStyle = 'rgba(46,46,46,1)';
         context.shadowBlur = 1;
@@ -222,6 +223,8 @@ class View {
         this.drawBoardPieceArea(context, pieceArea);
         this.drawDices(context, pieceArea);
         this.drawLineupPieceArea(context, pieceArea);
+        this.drawPointArea(context, pieceArea);
+        this.drawWinSet(context, pieceArea);
         context.restore();
     }
 }
