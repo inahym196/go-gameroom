@@ -11,3 +11,7 @@
     }
 
 }
+
+body {
+    background-image: url('/public/images/wood-texture.jpg');
+}
