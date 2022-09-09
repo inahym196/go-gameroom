@@ -1,13 +1,47 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 
+	"github.com/tidwall/gjson"
+
 	"github.com/gin-gonic/gin"
 	"gopkg.in/olahol/melody.v1"
 )
+
+type Board struct {
+	Id           int        `json:"id"`
+	Pieces       [][]string `json:"pieces"`
+	Turn         int        `json:"turn"`
+	Status       string     `json:"status"`
+	Players      _Players   `json:"players"`
+	Winner       string     `json:"winner"`
+	LastPutPoint string     `json:"last_put_point"`
+}
+
+type _Players struct {
+	First string `json:"first"`
+	Draw  string `json:"draw"`
+}
+
+func getBoard(url string) ([]byte, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	byteArray, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var board Board
+	json.Unmarshal(byteArray, &board)
+	return byteArray, nil
+}
 
 func main() {
 
@@ -34,13 +68,22 @@ func main() {
 	})
 	m.HandleMessage(func(s *melody.Session, msg []byte) {
 
-		resp, err := http.Get(url)
-		if err != nil {
-			log.Fatal(err)
+		request := gjson.Get(string(msg), "request")
+		switch request.String() {
+		case "board":
+			byteArray, err := getBoard(url)
+			if err != nil {
+				log.Fatal(err)
+			}
+			s.Write(byteArray)
+		case "put":
+			byteArray, err := getBoard(url)
+			if err != nil {
+				log.Fatal(err)
+			}
+			m.Broadcast(byteArray)
 		}
-		defer resp.Body.Close()
-		byteArray, _ := io.ReadAll(resp.Body)
-		m.Broadcast(byteArray)
+
 	})
 	engine.Run("127.0.0.1:3000")
 }
