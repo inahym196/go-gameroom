@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 
@@ -39,7 +39,7 @@ func main() {
 			log.Fatal(err)
 		}
 		defer resp.Body.Close()
-		byteArray, _ := ioutil.ReadAll(resp.Body)
+		byteArray, _ := io.ReadAll(resp.Body)
 		m.Broadcast(byteArray)
 	})
 	engine.Run("127.0.0.1:3000")
