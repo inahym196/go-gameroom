@@ -64,6 +64,9 @@ ws.onmessage = function (msg) {
     if (msg.data) {
         const data = JSON.parse(msg.data);
         console.log(data);
+        if (data.turn !== undefined) {
+            turn = data.turn
+        }
         switch (data.Type) {
             case "join":
                 turn = data.Board.turn;
