@@ -13,7 +13,7 @@ import (
 )
 
 func getNotify(b model.Board, s *melody.Session) ([]byte, error) {
-	board, err := b.GetBoard()
+	board, err := model.GetBoard(b.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func getNotify(b model.Board, s *melody.Session) ([]byte, error) {
 }
 
 func SetOrder(s *melody.Session, b model.Board) error {
-	board, err := b.GetBoard()
+	board, err := model.GetBoard(b.Id)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func GetMRouter() *melody.Melody {
 		switch msgType {
 		case "join":
 			SetOrder(s, b)
-			board, err := b.GetBoard()
+			board, err := model.GetBoard(b.Id)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -105,7 +105,7 @@ func GetMRouter() *melody.Melody {
 			if err != nil {
 				log.Fatal(err)
 			}
-			byteArray, err := b.PutPiece(*point, s)
+			byteArray, err := model.PutPiece(s, *point, b.Id)
 			if err != nil {
 				log.Fatal(err)
 			}
