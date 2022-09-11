@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/tidwall/gjson"
 	"gopkg.in/olahol/melody.v1"
@@ -26,8 +27,8 @@ func getBoard(url string) ([]byte, error) {
 func GetMRouter() *melody.Melody {
 	m := melody.New()
 	m.HandleMessage(func(s *melody.Session, msg []byte) {
-
-		url := "http://localhost:8000/api/v1/boards/0/"
+		boardId := strings.Split(s.Request.RequestURI, "/")[2]
+		url := "http://localhost:8000/api/v1/boards/" + boardId + "/"
 		request := gjson.Get(string(msg), "request")
 		switch request.String() {
 		case "board":
@@ -43,7 +44,6 @@ func GetMRouter() *melody.Melody {
 			}
 			m.Broadcast(byteArray)
 		}
-
 	})
 	return m
 }
