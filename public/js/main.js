@@ -9,6 +9,18 @@ function initCanvas(canvas) {
         context.drawImage(board_image, 0, 0);
     };
 }
+function isMyTurn() {
+    if (turn === undefined || order === undefined) {
+        return false;
+    }
+    else if (turn % 2 === 0 && order === 'first') {
+        return true;
+    }
+    else if (turn % 2 === 1 && order === 'draw') {
+        return true;
+    }
+    return false;
+}
 function putPieceEvent(e, ws) {
     const rect = canvas.getBoundingClientRect();
     const clientRatio = canvas.width / canvas.clientWidth;
@@ -26,25 +38,40 @@ function putPieceEvent(e, ws) {
         y: Math.floor((clickPoint.y - pieceArea.y) / (pieceArea.length / (pieceArea.grid + 1))),
     };
     console.log(clickPiece);
-    const putInfo = { 'name': 'first', 'request': 'put', 'piece': clickPiece };
-    ws.send(JSON.stringify(putInfo));
+    const putInfo = { 'type': 'put', 'piece': clickPiece };
+    if (isMyTurn() === true) {
+        console.log('send');
+        ws.send(JSON.stringify(putInfo));
+    }
+    else {
+        console.log('not send');
+    }
 }
 const canvas = document.getElementById('screen');
 initCanvas(canvas);
 const url = "ws://" + window.location.host + window.location.pathname + "/ws";
 const ws = new WebSocket(url);
 var wsOpened = false;
+let turn;
+let order;
 ws.onopen = function (event) {
     wsOpened = true;
     console.log("ws connected");
-    const joinInfo = { 'name': 'first', 'request': 'board' };
+    const joinInfo = { 'type': 'join' };
     ws.send(JSON.stringify(joinInfo));
 };
 ws.onmessage = function (msg) {
     if (msg.data) {
-        const board = JSON.parse(msg.data);
-        if (board) {
-            console.log(board);
+        const data = JSON.parse(msg.data);
+        console.log(data);
+        switch (data.Type) {
+            case "join":
+                turn = data.Board.turn;
+                order = data.Order;
+                break;
+            case "board":
+                console.log(data);
+                break;
         }
     }
 };

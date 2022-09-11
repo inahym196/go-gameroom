@@ -8,9 +8,7 @@ import (
 )
 
 func getLogin(c *gin.Context) {
-	c.HTML(http.StatusOK, "login.tmpl", gin.H{
-		"title": "Go GameRoom",
-	})
+	c.HTML(http.StatusOK, "login.tmpl", gin.H{})
 }
 
 func postLogin(c *gin.Context) {

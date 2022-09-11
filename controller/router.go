@@ -9,25 +9,16 @@ import (
 )
 
 func getLobby(c *gin.Context) {
-	cookieKey := "LoginUserIdKey"
-	userName := model_redis.GetSession(c, cookieKey)
-	if userName == nil {
-		userName = "Guest"
-	}
+	userName := c.GetString("authedUser")
 	c.HTML(http.StatusOK, "lobby.tmpl", gin.H{
-		"title":    "Go GameRoom",
 		"userName": userName,
 	})
 }
 
 func getRoom(c *gin.Context) {
 	id := c.Param("id")
-	userName, exists := c.Get("authedUser")
-	if exists == false {
-		userName = "Guest"
-	}
+	userName := c.GetString("authedUser")
 	c.HTML(http.StatusOK, "room.tmpl", gin.H{
-		"title":    "Go GameRoom",
 		"userName": userName,
 		"id":       id,
 	})
@@ -35,7 +26,8 @@ func getRoom(c *gin.Context) {
 
 func getWS(m *melody.Melody) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		m.HandleRequest(c.Writer, c.Request)
+		userName := c.GetString("authedUser")
+		m.HandleRequestWithKeys(c.Writer, c.Request, map[string]interface{}{"userName": userName})
 	}
 }
 
@@ -44,12 +36,10 @@ func checkLogin() gin.HandlerFunc {
 		cookieKey := "LoginUserIdKey"
 		userName := model_redis.GetSession(c, cookieKey)
 		if userName == nil {
-			c.Redirect(http.StatusFound, "/login")
-			c.Abort()
-		} else {
-			c.Set("authedUser", userName)
-			c.Next()
+			userName = "Guest"
 		}
+		c.Set("authedUser", userName)
+		c.Next()
 	}
 }
 
@@ -71,10 +61,10 @@ func GetRouter(m *melody.Melody) *gin.Engine {
 	router.Static("/public", "./public")
 	router.LoadHTMLGlob("templates/*")
 
-	router.GET("/", getLobby)
-	router.GET("/lobby", getLobby)
 	loginCheckGroup := router.Group("/", checkLogin())
 	{
+		loginCheckGroup.GET("/", getLobby)
+		loginCheckGroup.GET("/lobby", getLobby)
 		loginCheckGroup.GET("/rooms/:id", getRoom)
 		loginCheckGroup.GET("/rooms/:id/ws", getWS(m))
 		loginCheckGroup.GET("/logout", getLogout)
