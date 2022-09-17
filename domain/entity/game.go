@@ -1,13 +1,43 @@
 package entity
 
-type GameId string
+type GameStatus int
+
+const (
+	Init GameStatus = iota
+	Waiting
+	Starting
+	End
+)
 
 type Game struct {
-	Id GameId
+	Status  GameStatus
+	Players []User
+	Winner  *User
+}
+
+type PutPoint struct {
+	x int
+	y int
+}
+
+type SquareBoardGame struct {
+	Game
+	Turn         int
+	Pieces       [][]string
+	LastPutPoint PutPoint
+}
+
+type XOGame struct {
+	SquareBoardGame
 }
 
 type GameRepository interface {
-	Find(GameId) (*Game, error)
-	FindAll() ([]Game, error)
-	Regist(*Game) error
+	Init() error
+	Join(*User) bool
+}
+
+type XOGameRepository interface {
+	GameRepository
+	Get() (*XOGame, error)
+	PutPiece(*PutPoint) (*XOGame, error)
 }

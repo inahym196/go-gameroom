@@ -5,29 +5,27 @@ import (
 	"go-gameroom/usecase/port"
 )
 
-type GameInteractor struct {
-	OutputPort     port.GameOutputPort
-	GameRepository entity.GameRepository
+type XOGameInteractor struct {
+	OutputPort port.XOGameOutputPort
+	Repository entity.XOGameRepository
 }
 
-func NewGameInputPort(outputPort port.GameOutputPort, gameRepository entity.GameRepository) port.GameInputPort {
-	return &GameInteractor{
-		OutputPort:     outputPort,
-		GameRepository: gameRepository,
+func NewXOGameInputPort(outputPort port.XOGameOutputPort, repository entity.XOGameRepository) port.XOGameInputPort {
+	return &XOGameInteractor{
+		OutputPort: outputPort,
+		Repository: repository,
 	}
 }
 
-func (i *GameInteractor) GetGames() {
-	res, err := i.GameRepository.FindAll()
+func gameTransfer(entityGame *entity.XOGame) (outputGame *port.XOGame) {
+	return &port.XOGame{}
+}
+
+func (i *XOGameInteractor) GetGame() {
+	res, err := i.Repository.Get()
 	if err != nil {
 		panic(0)
 	}
-	i.OutputPort.GetGames(res)
-}
-func (i *GameInteractor) GetGame(params *port.GetGameRequestParams) {
-	res, err := i.GameRepository.Find(entity.GameId(params.GameId))
-	if err != nil {
-		panic(0)
-	}
-	i.OutputPort.GetGame(res)
+	outputGame := gameTransfer(res)
+	i.OutputPort.GetGame(outputGame)
 }

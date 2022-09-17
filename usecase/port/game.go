@@ -1,35 +1,31 @@
 package port
 
-import (
-	"go-gameroom/domain/entity"
+type GameId = string
+type GameStatus = int
+
+const (
+	Init GameStatus = iota
+	Waiting
+	Starting
+	End
 )
 
-/*
- * Input Port
- *  └─ Interactor で実装、Controller で使用される
- */
-type GameInputPort interface {
-	GetGames()
-	GetGame(*GetGameRequestParams)
+type Game struct {
+	Status GameStatus
 }
 
-type GetGameRequestParams struct {
-	GameId string
+type XOGameInputPort interface {
+	GetGame()
 }
 
-/*
- * Output Port
- *  └─ Presenter で実装、Interactor で使用される
- */
-type GameOutputPort interface {
-	GetGames([]entity.Game)
-	GetGame(*entity.Game)
+type XOGame struct {
+	Game
 }
 
-type GetGameResponse struct {
-	Game *entity.Game
+type XOGameOutputPort interface {
+	GetGame(*XOGame)
 }
 
-type GetGamesResponse struct {
-	Games []entity.Game
+type GetXOGameResponse struct {
+	Game *XOGame
 }

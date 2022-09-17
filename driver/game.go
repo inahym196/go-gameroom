@@ -1,23 +1,27 @@
 package driver
 
 import (
-	controller "go-gameroom/adapter/controller/web"
-	"go-gameroom/adapter/gateway"
-	presenter "go-gameroom/adapter/presenter/web"
+	controller "go-gameroom/adapter/controller/http"
+	gateway "go-gameroom/adapter/gateway/inmemory"
+	presenter "go-gameroom/adapter/presenter/http"
 	"go-gameroom/usecase/interactor"
 	"log"
 	"net/http"
 )
 
-func Serve(addr string) {
+func Serve2(addr string) {
 	game := controller.GameController{
-		InputFactory:      interactor.NewGameInputPort,
-		OutputFactory:     presenter.NewGameOutputPort,
-		RepositoryFactory: gateway.NewGameRedisRepository,
+		InputFactory:      interactor.NewXOGameInputPort,
+		OutputFactory:     presenter.NewXOGameOutputPort,
+		RepositoryFactory: gateway.NewXOGameRepository,
 	}
 	http.HandleFunc("/game/", game.GetGameHandler)
 	err := http.ListenAndServe(addr, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
+	// mrouter := routing.GetMRouter()
+	// upgradeHandleFunc := routing.UpgradeHandleFunc(mrouter)
+	// router := routing.GetRouter(upgradeHandleFunc)
+	// router.Run(addr)
 }
