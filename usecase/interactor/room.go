@@ -3,16 +3,15 @@ package interactor
 import (
 	"go-gameroom/domain/entity"
 	"go-gameroom/usecase/port"
+	"strconv"
 )
 
 type RoomInteractor struct {
-	OutputPort port.RoomOutputPort
 	Repository entity.RoomRepository
 }
 
-func NewRoomInputPort(outputPort port.RoomOutputPort, repository entity.RoomRepository) port.RoomInputPort {
+func NewRoomInputPort(repository entity.RoomRepository) port.RoomInputPort {
 	return &RoomInteractor{
-		OutputPort: outputPort,
 		Repository: repository,
 	}
 }
@@ -31,20 +30,19 @@ func roomTransfer(entityRoom *entity.Room) *port.Room {
 	return outputRoom
 }
 
-func (i *RoomInteractor) GetRoomById(roomId port.RoomId) {
-	res, err := i.Repository.GetRoomById(entity.RoomId(roomId))
+func (i *RoomInteractor) GetRoomById(roomId port.RoomId) (*port.Room, error) {
+	s := strconv.Itoa(roomId)
+	res, err := i.Repository.GetRoomById(entity.RoomId(s))
 	if err != nil {
-		i.OutputPort.GetRoomById(nil, err)
-		return
+		return nil, err
 	}
-	outputData := roomTransfer(res)
-	i.OutputPort.GetRoomById(outputData, nil)
+	return roomTransfer(res), nil
 }
 
-func (i *RoomInteractor) GetRooms() {
+func (i *RoomInteractor) GetRooms() (map[int]*port.Room, error) {
 	res, err := i.Repository.GetRooms()
 	if err != nil {
-		i.OutputPort.GetRooms(nil, err)
+		return nil, err
 	}
 	rooms := make(map[int]*port.Room)
 	for i, room := range res {
@@ -52,15 +50,14 @@ func (i *RoomInteractor) GetRooms() {
 			rooms[i] = roomTransfer(room)
 		}
 	}
-	i.OutputPort.GetRooms(rooms, nil)
+	return rooms, nil
 }
 
-func (i *RoomInteractor) Init(roomId port.RoomId) {
-	res, err := i.Repository.Init(entity.RoomId(roomId))
+func (i *RoomInteractor) Init(roomId port.RoomId) (*port.Room, error) {
+	s := strconv.Itoa(roomId)
+	res, err := i.Repository.Init(entity.RoomId(s))
 	if err != nil {
-		i.OutputPort.Init(nil, err)
-		return
+		return nil, err
 	}
-	outputData := roomTransfer(res)
-	i.OutputPort.Init(outputData, nil)
+	return roomTransfer(res), nil
 }

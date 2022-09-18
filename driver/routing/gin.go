@@ -23,7 +23,7 @@ func NewGinRouter() Router {
 func (r *GinRouter) setRouting() {
 	roomController := controller.RoomController{
 		RepositoryFactory: gateway.NewRoomRepository,
-		PortFactory:       interactor.NewRoomLoosePort,
+		InputPortFactory:  interactor.NewRoomInputPort,
 	}
 	r.Gin.Static("/public", "./driver/public")
 	r.Gin.LoadHTMLGlob("./driver/templates/*")

@@ -10,18 +10,6 @@ type Room struct {
 }
 
 type RoomInputPort interface {
-	GetRoomById(RoomId)
-	GetRooms()
-	Init(RoomId)
-}
-
-type RoomOutputPort interface {
-	GetRoomById(*Room, error)
-	GetRooms(map[int]*Room, error)
-	Init(*Room, error)
-}
-
-type RoomLoosePort interface {
 	GetRoomById(RoomId) (*Room, error)
 	GetRooms() (map[int]*Room, error)
 	Init(RoomId) (*Room, error)

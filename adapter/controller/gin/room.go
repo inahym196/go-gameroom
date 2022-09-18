@@ -11,12 +11,12 @@ import (
 
 type RoomController struct {
 	RepositoryFactory func() entity.RoomRepository
-	PortFactory       func(repository entity.RoomRepository) port.RoomLoosePort
+	InputPortFactory  func(repository entity.RoomRepository) port.RoomInputPort
 }
 
 func (c *RoomController) GetRoom(ctx *gin.Context) {
 	repository := c.RepositoryFactory()
-	port := c.PortFactory(repository)
+	inputport := c.InputPortFactory(repository)
 	roomId := ctx.Param("roomId")
 	i, err := strconv.Atoi(roomId)
 	if err != nil {
@@ -24,7 +24,7 @@ func (c *RoomController) GetRoom(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
-	res, err := port.GetRoomById(i)
+	res, err := inputport.GetRoomById(i)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		ctx.Abort()
@@ -35,8 +35,8 @@ func (c *RoomController) GetRoom(ctx *gin.Context) {
 
 func (c *RoomController) GetRooms(ctx *gin.Context) {
 	repository := c.RepositoryFactory()
-	port := c.PortFactory(repository)
-	res, err := port.GetRooms()
+	inputport := c.InputPortFactory(repository)
+	res, err := inputport.GetRooms()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		ctx.Abort()
@@ -47,7 +47,7 @@ func (c *RoomController) GetRooms(ctx *gin.Context) {
 
 func (c *RoomController) InitRoom(ctx *gin.Context) {
 	repository := c.RepositoryFactory()
-	port := c.PortFactory(repository)
+	inputport := c.InputPortFactory(repository)
 	roomId := ctx.Param("roomId")
 	i, err := strconv.Atoi(roomId)
 	if err != nil {
@@ -55,7 +55,7 @@ func (c *RoomController) InitRoom(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
-	res, err := port.Init(i)
+	res, err := inputport.Init(i)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		ctx.Abort()

@@ -22,5 +22,3 @@
 
 # Go workspace file
 go.work
-
-tmp/
