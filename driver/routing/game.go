@@ -3,7 +3,6 @@ package routing
 import (
 	controller "go-gameroom/adapter/controller/http"
 	gateway "go-gameroom/adapter/gateway/inmemory"
-	presenter "go-gameroom/adapter/presenter/http"
 	"go-gameroom/usecase/interactor"
 	"log"
 	"net/http"
@@ -12,7 +11,6 @@ import (
 func Serve2(addr string) {
 	game := controller.GameController{
 		InputFactory:      interactor.NewXOGameInputPort,
-		OutputFactory:     presenter.NewXOGameOutputPort,
 		RepositoryFactory: gateway.NewXOGameRepository,
 	}
 	http.HandleFunc("/game/", game.GetGameHandler)
