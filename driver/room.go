@@ -15,7 +15,7 @@ func Serve(addr string) {
 		OutputFactory:     presenter.NewRoomOutputPort,
 		RepositoryFactory: gateway.NewRoomRepository,
 	}
-	http.HandleFunc("/rooms/", room.GetRooms)
+	http.HandleFunc("/rooms/", room.EndpointHandler)
 	err := http.ListenAndServe(addr, nil)
 	if err != nil {
 		log.Fatal(err)

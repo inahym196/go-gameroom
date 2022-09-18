@@ -52,23 +52,27 @@ class XOGame{
 
 class Repository {
     <<interface>>
-    UserUseCases()
-    RoomUseCases()
-    XOGameUseCases()
+    NewRepository()*
+    UserUseCases()*
+    RoomUseCases()*
+    XOGameUseCases()*
 }
 
 class InputPort{
     <<interface>>
-    UserUseCases()
-    RoomUseCases()
-    XOGameUseCases()
+    NewInputPort(outputport,repository)*
+    UserUseCases()*
+    RoomUseCases()*
+    XOGameUseCases()*
 }
+
 
 class OutputPort{
     <<interface>>
-    UserUseCases()
-    RoomUseCases()
-    XOGameUseCases()
+    NewOutputPort()*
+    UserUseCases()*
+    RoomUseCases()*
+    XOGameUseCases()*
 }
 
 ```

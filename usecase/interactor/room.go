@@ -33,12 +33,13 @@ func roomTransfer(entityRoom *entity.Room) (outputRoom *port.Room) {
 }
 
 func (i *RoomInteractor) GetRoomById(roomId port.RoomId) {
-	res, err := i.Repository.GetRoomById(entity.RoomId(roomId))
-	if err != nil {
-		panic(0)
+	res, ok, _ := i.Repository.GetRoomById(entity.RoomId(roomId))
+	if !ok {
+		i.OutputPort.GetRoomById(nil)
+	} else {
+		outputData := roomTransfer(res)
+		i.OutputPort.GetRoomById(outputData)
 	}
-	outputData := roomTransfer(res)
-	i.OutputPort.GetRoomById(outputData)
 }
 
 func (i *RoomInteractor) GetRooms() {
@@ -46,9 +47,24 @@ func (i *RoomInteractor) GetRooms() {
 	if err != nil {
 		panic(0)
 	}
-	var rooms []*port.Room
-	for _, room := range res {
-		rooms = append(rooms, roomTransfer(room))
+	rooms := make(map[int]*port.Room)
+	for i, room := range res {
+		rooms[i] = roomTransfer(room)
 	}
 	i.OutputPort.GetRooms(rooms)
+}
+
+func (i *RoomInteractor) Create(roomId port.RoomId) {
+	res, ok := i.Repository.Create(entity.RoomId(roomId))
+	if !ok {
+		i.OutputPort.Create(nil)
+	} else {
+		outputData := roomTransfer(res)
+		i.OutputPort.Create(outputData)
+	}
+}
+
+func (i *RoomInteractor) Delete(roomId port.RoomId) {
+	i.Repository.Delete(entity.RoomId(roomId))
+	i.OutputPort.Delete(true)
 }

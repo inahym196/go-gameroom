@@ -12,8 +12,8 @@ type Room struct {
 }
 
 type RoomRepository interface {
-	GetRoomById(RoomId) (*Room, error)
-	GetRooms() ([]*Room, error)
-	Create(RoomId) (*Room, error)
-	Delete(RoomId) error
+	GetRoomById(RoomId) (*Room, bool, error)
+	GetRooms() (map[int]*Room, error)
+	Create(RoomId) (*Room, bool)
+	Delete(RoomId) (bool, error)
 }

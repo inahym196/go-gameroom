@@ -12,9 +12,13 @@ type Room struct {
 type RoomInputPort interface {
 	GetRoomById(RoomId)
 	GetRooms()
+	Create(RoomId)
+	Delete(RoomId)
 }
 
 type RoomOutputPort interface {
 	GetRoomById(*Room)
-	GetRooms([]*Room)
+	GetRooms(map[int]*Room)
+	Create(*Room)
+	Delete(bool)
 }

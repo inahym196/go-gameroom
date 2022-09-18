@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"fmt"
 	"go-gameroom/domain/entity"
 	"go-gameroom/usecase/port"
 	"net/http"
+	"strings"
 )
 
 type RoomController struct {
@@ -12,9 +14,25 @@ type RoomController struct {
 	InputFactory      func(outputPort port.RoomOutputPort, repository entity.RoomRepository) port.RoomInputPort
 }
 
-func (c *RoomController) GetRooms(w http.ResponseWriter, r *http.Request) {
+func (c *RoomController) EndpointHandler(w http.ResponseWriter, r *http.Request) {
 	outputPort := c.OutputFactory(w)
 	repository := c.RepositoryFactory()
 	inputPort := c.InputFactory(outputPort, repository)
-	inputPort.GetRooms()
+	roomId := strings.TrimPrefix(r.URL.Path, "/rooms/")
+
+	switch r.Method {
+	case http.MethodGet:
+		fmt.Println("GET")
+		if len(roomId) > 0 {
+			inputPort.GetRoomById(roomId)
+		} else {
+			inputPort.GetRooms()
+		}
+	case http.MethodPost:
+		fmt.Println("POST")
+		inputPort.Create(roomId)
+	case http.MethodDelete:
+		fmt.Println("DELETE")
+		inputPort.Delete(roomId)
+	}
 }

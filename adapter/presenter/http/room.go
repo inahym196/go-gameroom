@@ -17,15 +17,28 @@ func NewRoomOutputPort(w http.ResponseWriter) port.RoomOutputPort {
 }
 
 func (c *RoomHTTPClient) GetRoomById(room *port.Room) {
+	fmt.Printf("%+v", room)
 	c.writer.WriteHeader(http.StatusOK)
 	fmt.Fprint(c.writer, room)
-	fmt.Printf("%+v", room)
 }
 
-func (c *RoomHTTPClient) GetRooms(rooms []*port.Room) {
+func (c *RoomHTTPClient) GetRooms(rooms map[int]*port.Room) {
 	c.writer.WriteHeader(http.StatusOK)
 	fmt.Fprint(c.writer, &rooms)
+	fmt.Println("===")
 	for _, room := range rooms {
-		fmt.Printf("%#v", room)
+		fmt.Printf("%+v\n", room)
 	}
+}
+
+func (c *RoomHTTPClient) Create(room *port.Room) {
+	c.writer.WriteHeader(http.StatusOK)
+	fmt.Fprint(c.writer, &room)
+	fmt.Printf("create: %+v", room)
+}
+
+func (c *RoomHTTPClient) Delete(ok bool) {
+	c.writer.WriteHeader(http.StatusOK)
+	fmt.Fprint(c.writer, ok)
+	fmt.Printf("delete %+v", ok)
 }
