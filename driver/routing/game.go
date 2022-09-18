@@ -1,4 +1,4 @@
-package driver
+package routing
 
 import (
 	controller "go-gameroom/adapter/controller/http"

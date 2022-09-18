@@ -17,54 +17,50 @@ func NewRoomInputPort(outputPort port.RoomOutputPort, repository entity.RoomRepo
 	}
 }
 
-func roomTransfer(entityRoom *entity.Room) (outputRoom *port.Room) {
+func roomTransfer(entityRoom *entity.Room) *port.Room {
 	var atendee []string
 	for _, user := range entityRoom.Atendee {
 		atendee = append(atendee, user.Name)
 	}
-	outputRoom = &port.Room{
-		RoomId:     string(entityRoom.Id),
+	outputRoom := &port.Room{
+		RoomId:     entityRoom.Id.MustInt(),
 		Url:        string(entityRoom.Url),
 		Atendee:    atendee,
 		GameStatus: string(entityRoom.Game.Status),
 	}
 	return outputRoom
-
 }
 
 func (i *RoomInteractor) GetRoomById(roomId port.RoomId) {
-	res, ok, _ := i.Repository.GetRoomById(entity.RoomId(roomId))
-	if !ok {
-		i.OutputPort.GetRoomById(nil)
-	} else {
-		outputData := roomTransfer(res)
-		i.OutputPort.GetRoomById(outputData)
+	res, err := i.Repository.GetRoomById(entity.RoomId(roomId))
+	if err != nil {
+		i.OutputPort.GetRoomById(nil, err)
+		return
 	}
+	outputData := roomTransfer(res)
+	i.OutputPort.GetRoomById(outputData, nil)
 }
 
 func (i *RoomInteractor) GetRooms() {
 	res, err := i.Repository.GetRooms()
 	if err != nil {
-		panic(0)
+		i.OutputPort.GetRooms(nil, err)
 	}
 	rooms := make(map[int]*port.Room)
 	for i, room := range res {
-		rooms[i] = roomTransfer(room)
+		if room.Id != "" {
+			rooms[i] = roomTransfer(room)
+		}
 	}
-	i.OutputPort.GetRooms(rooms)
+	i.OutputPort.GetRooms(rooms, nil)
 }
 
-func (i *RoomInteractor) Create(roomId port.RoomId) {
-	res, ok := i.Repository.Create(entity.RoomId(roomId))
-	if !ok {
-		i.OutputPort.Create(nil)
-	} else {
-		outputData := roomTransfer(res)
-		i.OutputPort.Create(outputData)
+func (i *RoomInteractor) Init(roomId port.RoomId) {
+	res, err := i.Repository.Init(entity.RoomId(roomId))
+	if err != nil {
+		i.OutputPort.Init(nil, err)
+		return
 	}
-}
-
-func (i *RoomInteractor) Delete(roomId port.RoomId) {
-	i.Repository.Delete(entity.RoomId(roomId))
-	i.OutputPort.Delete(true)
+	outputData := roomTransfer(res)
+	i.OutputPort.Init(outputData, nil)
 }

@@ -1,6 +1,6 @@
 package port
 
-type RoomId = string
+type RoomId = int
 
 type Room struct {
 	RoomId     RoomId
@@ -12,13 +12,17 @@ type Room struct {
 type RoomInputPort interface {
 	GetRoomById(RoomId)
 	GetRooms()
-	Create(RoomId)
-	Delete(RoomId)
+	Init(RoomId)
 }
 
 type RoomOutputPort interface {
-	GetRoomById(*Room)
-	GetRooms(map[int]*Room)
-	Create(*Room)
-	Delete(bool)
+	GetRoomById(*Room, error)
+	GetRooms(map[int]*Room, error)
+	Init(*Room, error)
+}
+
+type RoomLoosePort interface {
+	GetRoomById(RoomId) (*Room, error)
+	GetRooms() (map[int]*Room, error)
+	Init(RoomId) (*Room, error)
 }

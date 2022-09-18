@@ -5,6 +5,7 @@ import (
 	"go-gameroom/domain/entity"
 	"go-gameroom/usecase/port"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -19,20 +20,25 @@ func (c *RoomController) EndpointHandler(w http.ResponseWriter, r *http.Request)
 	repository := c.RepositoryFactory()
 	inputPort := c.InputFactory(outputPort, repository)
 	roomId := strings.TrimPrefix(r.URL.Path, "/rooms/")
-
 	switch r.Method {
 	case http.MethodGet:
 		fmt.Println("GET")
 		if len(roomId) > 0 {
-			inputPort.GetRoomById(roomId)
-		} else {
-			inputPort.GetRooms()
+			i, err := strconv.Atoi(roomId)
+			if err != nil {
+				fmt.Fprint(w, err)
+				return
+			}
+			inputPort.GetRoomById(i)
+			return
 		}
+		inputPort.GetRooms()
 	case http.MethodPost:
-		fmt.Println("POST")
-		inputPort.Create(roomId)
-	case http.MethodDelete:
 		fmt.Println("DELETE")
-		inputPort.Delete(roomId)
+		i, err := strconv.Atoi(roomId)
+		if err != nil {
+			fmt.Fprint(w, err)
+		}
+		inputPort.Init(i)
 	}
 }

@@ -1,4 +1,4 @@
-package driver
+package routing
 
 import (
 	controller "go-gameroom/adapter/controller/http"
@@ -9,7 +9,17 @@ import (
 	"net/http"
 )
 
-func Serve(addr string) {
+type Router interface {
+	Run(addr string)
+}
+
+type HTTPRouter struct{}
+
+func NewHTTPRouter() Router {
+	return &HTTPRouter{}
+}
+
+func (r *HTTPRouter) Run(addr string) {
 	room := controller.RoomController{
 		InputFactory:      interactor.NewRoomInputPort,
 		OutputFactory:     presenter.NewRoomOutputPort,
@@ -20,8 +30,5 @@ func Serve(addr string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//mrouter := routing.GetMRouter()
-	//upgradeHandleFunc := routing.UpgradeHandleFunc(mrouter)
-	//router := routing.GetRouter(upgradeHandleFunc)
-	//router.Run(addr)
+
 }

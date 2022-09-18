@@ -16,29 +16,31 @@ func NewRoomOutputPort(w http.ResponseWriter) port.RoomOutputPort {
 	}
 }
 
-func (c *RoomHTTPClient) GetRoomById(room *port.Room) {
-	fmt.Printf("%+v", room)
+func (c *RoomHTTPClient) GetRoomById(room *port.Room, err error) {
 	c.writer.WriteHeader(http.StatusOK)
+	if err != nil {
+		fmt.Fprint(c.writer, err)
+	}
+	fmt.Printf("%+v", room)
 	fmt.Fprint(c.writer, room)
 }
 
-func (c *RoomHTTPClient) GetRooms(rooms map[int]*port.Room) {
+func (c *RoomHTTPClient) GetRooms(rooms map[int]*port.Room, err error) {
 	c.writer.WriteHeader(http.StatusOK)
-	fmt.Fprint(c.writer, &rooms)
-	fmt.Println("===")
+	if err != nil {
+		fmt.Fprint(c.writer, err)
+	}
 	for _, room := range rooms {
 		fmt.Printf("%+v\n", room)
 	}
+	fmt.Fprint(c.writer, &rooms)
 }
 
-func (c *RoomHTTPClient) Create(room *port.Room) {
+func (c *RoomHTTPClient) Init(room *port.Room, err error) {
 	c.writer.WriteHeader(http.StatusOK)
+	if err != nil {
+		fmt.Fprint(c.writer, err)
+	}
+	fmt.Printf("%+v", room)
 	fmt.Fprint(c.writer, &room)
-	fmt.Printf("create: %+v", room)
-}
-
-func (c *RoomHTTPClient) Delete(ok bool) {
-	c.writer.WriteHeader(http.StatusOK)
-	fmt.Fprint(c.writer, ok)
-	fmt.Printf("delete %+v", ok)
 }

@@ -1,6 +1,16 @@
 package entity
 
+import "strconv"
+
 type RoomId string
+
+func (roomId RoomId) MustInt() int {
+	i, err := strconv.Atoi(string(roomId))
+	if err != nil {
+		panic(0)
+	}
+	return i
+}
 
 type RoomUrl string
 
@@ -12,8 +22,7 @@ type Room struct {
 }
 
 type RoomRepository interface {
-	GetRoomById(RoomId) (*Room, bool, error)
+	GetRoomById(RoomId) (*Room, error)
 	GetRooms() (map[int]*Room, error)
-	Create(RoomId) (*Room, bool)
-	Delete(RoomId) (bool, error)
+	Init(RoomId) (*Room, error)
 }
