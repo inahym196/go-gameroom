@@ -1,4 +1,4 @@
-{{ define "head" }}
+{{ define "head" -}}
 
 <head>
     <meta charset="UTF-8">
@@ -10,18 +10,16 @@
     <link rel="icon" href="data:,">
     <title>Go GameRoom</title>
 </head>
-{{ end }}
+{{- end }}
 
-{{ define "header" }}
+{{ define "header" -}}
 <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-secondary">
         <a href="/" class="navbar-brand mx-3">Go GameRoom</a>
-        {{ if .id }}
-        <span id="headerRoomName" class="navber-text">Room{{ .id }}</span>
-        {{ end }}
-        {{ if .userName }}
-        <span id="userName">{{ .userName }}</span>
-        {{ end }}
+        {{- if .id }}<span id="headerRoomName" class="navber-text">Room{{ .id }}</span>
+        {{- end -}}
+        {{- if .userName -}}<span id="userName">{{ .userName }}</span>
+        {{- end -}}
     </nav>
 </header>
 {{ end }}

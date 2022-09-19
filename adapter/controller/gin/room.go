@@ -33,16 +33,30 @@ func (c *RoomController) GetRoom(ctx *gin.Context) {
 	ctx.JSON(200, &res)
 }
 
-func (c *RoomController) GetRooms(ctx *gin.Context) {
+func (c *RoomController) GetRooms() (map[string]*port.RoomDto, error) {
 	repository := c.RepositoryFactory()
 	inputport := c.InputPortFactory(repository)
-	res, err := inputport.GetRooms()
+	rooms, err := inputport.GetRooms()
+	if err != nil {
+		return nil, err
+	}
+	return rooms, nil
+}
+
+func (c *RoomController) GetLobby(ctx *gin.Context) {
+	repository := c.RepositoryFactory()
+	inputport := c.InputPortFactory(repository)
+	rooms, err := inputport.GetRooms()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		ctx.Abort()
 		return
 	}
-	ctx.JSON(200, &res)
+	userName := ctx.GetString("userName")
+	ctx.HTML(http.StatusOK, "lobby.tmpl", gin.H{
+		"userName": userName,
+		"rooms":    rooms,
+	})
 }
 
 func (c *RoomController) InitRoom(ctx *gin.Context) {
