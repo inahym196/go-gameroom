@@ -5,16 +5,12 @@ import (
 	"gopkg.in/olahol/melody.v1"
 )
 
-func GetMRouter() *melody.Melody {
-	m := melody.New()
-	m.HandleMessage(func(s *melody.Session, msg []byte) {
-		println(string(msg))
-	})
-	return m
+func (r *GinRouter) UpgradeHandleFunc(c *gin.Context) {
+	r.melody.HandleRequest(c.Writer, c.Request)
 }
 
-func UpgradeHandleFunc(m *melody.Melody) func(*gin.Context) {
-	return func(c *gin.Context) {
-		m.HandleRequest(c.Writer, c.Request)
-	}
+func (r *GinRouter) setMelodyRouting() {
+	r.melody.HandleMessage(func(s *melody.Session, msg []byte) {
+		println(string(msg))
+	})
 }

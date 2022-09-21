@@ -15,7 +15,7 @@ func (r *GinRouter) MustLogin(c *gin.Context) {
 		return
 	}
 	fmt.Println("MustLogin: ", sessionId)
-	userName, err := r.UserController.GetUserName(sessionId)
+	userName, err := r.userController.GetUserName(sessionId)
 	if err != nil {
 		fmt.Println(err)
 		c.Redirect(http.StatusSeeOther, "/login")
@@ -28,7 +28,7 @@ func (r *GinRouter) MustLogin(c *gin.Context) {
 
 func (r *GinRouter) MustLogout(c *gin.Context) {
 	sessionId, err := c.Cookie("sessionId")
-	_, err = r.UserController.GetUserName(sessionId)
+	_, err = r.userController.GetUserName(sessionId)
 	if err != nil {
 		fmt.Println(err)
 		c.Next()
@@ -40,7 +40,7 @@ func (r *GinRouter) MustLogout(c *gin.Context) {
 
 func (r *GinRouter) PostLogin(c *gin.Context) {
 	userName := c.PostForm("userName")
-	sessionId, err := r.UserController.CreateSession(userName)
+	sessionId, err := r.userController.CreateSession(userName)
 	if err != nil {
 		c.Redirect(http.StatusSeeOther, "/login")
 		return
@@ -55,7 +55,7 @@ func (r *GinRouter) GetLogin(c *gin.Context) {
 
 func (r *GinRouter) GetLogout(c *gin.Context) {
 	sessionId, _ := c.Cookie("sessionId")
-	r.UserController.DeleteSession(sessionId)
+	r.userController.DeleteSession(sessionId)
 	c.SetCookie(sessionId, "", -1, "/", "localhost", false, true)
 	c.Redirect(http.StatusSeeOther, "/login")
 }

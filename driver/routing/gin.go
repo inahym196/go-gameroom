@@ -11,34 +11,36 @@ import (
 )
 
 type GinRouter struct {
-	Gin            *gin.Engine
-	Melody         *melody.Melody
-	RoomController controller.RoomController
-	UserController controller.UserController
+	gin            *gin.Engine
+	melody         *melody.Melody
+	roomController controller.RoomController
+	userController controller.UserController
 }
 
 func NewGinRouter(roomController controller.RoomController, userController controller.UserController) Router {
 	router := &GinRouter{
-		Gin:            gin.Default(),
-		Melody:         melody.New(),
-		RoomController: roomController,
-		UserController: userController,
+		gin:            gin.Default(),
+		melody:         melody.New(),
+		roomController: roomController,
+		userController: userController,
 	}
 	router.setRouting()
+	router.setMelodyRouting()
 	return router
 }
 
 func (r *GinRouter) setRouting() {
-	r.Gin.Static("/public", "./driver/public")
-	r.Gin.LoadHTMLGlob("./driver/templates/*")
-	loginCheckGroup := r.Gin.Group("/", r.MustLogin)
+	r.gin.Static("/public", "./driver/public")
+	r.gin.LoadHTMLGlob("./driver/templates/*")
+	loginCheckGroup := r.gin.Group("/", r.MustLogin)
 	{
 		loginCheckGroup.GET("/", r.GetLobby)
 		loginCheckGroup.GET("/lobby", r.GetLobby)
 		loginCheckGroup.GET("/rooms/:roomId", r.GetRoom)
+		loginCheckGroup.GET("/rooms/:roomId/ws", r.UpgradeHandleFunc)
 		loginCheckGroup.GET("/logout", r.GetLogout)
 	}
-	logoutCheckGroup := r.Gin.Group("/", r.MustLogout)
+	logoutCheckGroup := r.gin.Group("/", r.MustLogout)
 	{
 		logoutCheckGroup.GET("/login", r.GetLogin)
 		logoutCheckGroup.POST("/login", r.PostLogin)
@@ -46,11 +48,11 @@ func (r *GinRouter) setRouting() {
 }
 
 func (r *GinRouter) Run(addr string) {
-	r.Gin.Run(addr)
+	r.gin.Run(addr)
 }
 
 func (r *GinRouter) GetLobby(c *gin.Context) {
-	_rooms, err := r.RoomController.GetRooms()
+	_rooms, err := r.roomController.GetRooms()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		c.Abort()
@@ -73,5 +75,4 @@ func (r *GinRouter) GetRoom(c *gin.Context) {
 		"userName": c.GetString("userName"),
 		"id":       roomId,
 	})
-
 }
