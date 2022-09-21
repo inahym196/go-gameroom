@@ -1,15 +1,3 @@
-{{ define "room-card" }}
-<div class="col px-1">
-    <div class="card">
-        <h5 class="card-header">room {{.}}</h5>
-        <div class="card-body">
-            <p class="card-text">待機中...</p>
-            <a href="/rooms/{{.}}" class="btn btn-primary">参加</a>
-        </div>
-    </div>
-</div>
-{{ end }}
-
 <!DOCTYPE html>
 <html lang="en">
 {{ template "head" . }}
@@ -24,9 +12,25 @@
                     <div class="card-body">
                         <p class="card-text">好きな部屋を選んで入ってください</p>
                         <div class="row">
-                            {{ template "room-card" 1}}
-                            {{ template "room-card" 2}}
-                            {{ template "room-card" 3}}
+                            {{ range .Rooms -}}
+                            {{ if ne .Id 0 -}}
+                            <div class="col px-1">
+                                <div class="card">
+                                    <h5 class="card-header">room {{.Id}}</h5>
+                                    <div class="card-body">
+                                        <p class="card-text">
+                                            {{ if eq .GameStatus "Init" }}空室
+                                            {{ else if eq .GameStatus "Waiting"}}対戦相手待ち...
+                                            {{ else if eq .GameStatus "Starting"}}対戦中...
+                                            {{ else if eq .GameStatus "End"}}対戦終了
+                                            {{ end -}}
+                                        </p>
+                                        <a href="/rooms/{{.Id}}" class="btn btn-primary">参加</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {{ end -}}
+                            {{ end -}}
                         </div>
                     </div>
                 </div>

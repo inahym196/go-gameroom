@@ -1,18 +1,22 @@
 package entity
 
-type GameStatus int
+type GameStatus string
 
 const (
-	Init GameStatus = iota
-	Waiting
-	Starting
-	End
+	Init     = GameStatus("Init")
+	Waiting  = GameStatus("Waiting")
+	Starting = GameStatus("Starting")
+	End      = GameStatus("End")
 )
 
 type Game struct {
-	Status  GameStatus
-	Players []User
-	Winner  *User
+	status  GameStatus
+	players []User
+	winner  *User
+}
+
+func (g *Game) Status() string {
+	return string(Init)
 }
 
 type PutPoint struct {
@@ -40,4 +44,8 @@ type XOGameRepository interface {
 	GameRepository
 	Get() (*XOGame, error)
 	PutPiece(*PutPoint) (*XOGame, error)
+}
+
+func NewXOGame() *XOGame {
+	return &XOGame{}
 }

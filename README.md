@@ -4,34 +4,56 @@
 ```mermaid
 classDiagram
 
-main --> HTTPController
-main --> HTTPPresenter
-main --> InMemoryRepository
+main --> driver
 
-HTTPController --> InputPort
-HTTPPresenter ..|> OutputPort
-InMemoryRepository ..|> Repository
+driver --> GinRouter
 
-OutputPort <-- Interactor  
+GinRouter o--> UserController
+driver --> RoomController
+GinRouter o--> RoomController
+driver --> UserController
+driver --> RoomInputPort
+driver --> UserInputPort
+driver --> UserRepository
+driver --> RoomRepository
+driver --> SessionRepository
 
-InputPort <|.. Interactor
+RoomController --> InputPort
+RoomController ..|> OutputPort
 
-Repository <-- Interactor
+UserController --> InputPort
+UserController ..|> OutputPort
 
-Interactor --> Room
-Interactor --> XOGame
-Interactor --> User
+RoomRepository ..|> Repository
+UserRepository ..|> Repository
+SessionRepository ..|> Repository
+
+OutputPort <-- RoomInputPort 
+InputPort <|.. RoomInputPort 
+Repository <-- RoomInputPort 
+
+OutputPort <-- UserInputPort 
+InputPort <|.. UserInputPort 
+Repository <-- UserInputPort 
+
+RoomInputPort --> Room
+UserInputPort --> User
+UserInputPort --> Session
 
 Room o--> User
-Room *--> XOGame
 Repository --> Room
 Repository --> User
-Repository --> XOGame
+Repository --> Session
 
-XOGame o--> User
+
+class Session{
+    Id: string
+    UpdatedAt: string
+    UserId: string
+}
 
 class User{
-    +Name: string
+    Name: string
 }
 
 class Room{
@@ -41,38 +63,25 @@ class Room{
     Game: Game
 }
 
-class XOGame{
-    Status: string
-    Players: []User
-    Winner: User
-    Pieces: [][]string
-    Turn: int
-    LastPutPoint: string
-}
-
 class Repository {
     <<interface>>
     NewRepository()*
     UserUseCases()*
     RoomUseCases()*
-    XOGameUseCases()*
 }
 
 class InputPort{
     <<interface>>
-    NewInputPort(outputport,repository)*
+    NewInputPort(repository)*
     UserUseCases()*
     RoomUseCases()*
-    XOGameUseCases()*
 }
-
 
 class OutputPort{
     <<interface>>
     NewOutputPort()*
     UserUseCases()*
     RoomUseCases()*
-    XOGameUseCases()*
 }
 
 ```

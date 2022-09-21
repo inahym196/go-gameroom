@@ -1,12 +1,10 @@
 package main
 
 import (
-	"go-gameroom/driver/routing"
+	"go-gameroom/driver"
 )
 
 func main() {
 	println("Server running...")
-	// router := routing.NewHTTPRouter()
-	router := routing.NewGinRouter()
-	router.Run("localhost:8000")
+	driver.Serve("localhost:8000")
 }
