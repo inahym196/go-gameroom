@@ -9,8 +9,9 @@ type UserInputPort interface {
 	// GetUser(UserId) (*entity.User, error)
 	// sessionRepository
 	// GetData(SessionId) (string, error)
-	GetUserBySessionId(SessionId string) (*entity.User, error)
-
+	GetUserBySessionId(sessionId string) (*entity.User, error)
+	CreateSession(userName string) (sessionId string, err error)
+	DeleteSession(sessionId string) error
 	// Auth()
 	// Regist()
 }

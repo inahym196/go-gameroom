@@ -21,3 +21,19 @@ func (c *UserController) GetUserName(sessionId string) (UserName string, err err
 	}
 	return user.Name, nil
 }
+
+func (c *UserController) CreateSession(userName string) (string, error) {
+	userRepository := c.UserRepositoryFactory()
+	sessionRepository := c.SessionRepositoryFactory()
+	inputport := c.InputPortFactory(userRepository, sessionRepository)
+	sessionId, _ := inputport.CreateSession(userName)
+	return sessionId, nil
+}
+
+func (c *UserController) DeleteSession(userName string) error {
+	userRepository := c.UserRepositoryFactory()
+	sessionRepository := c.SessionRepositoryFactory()
+	inputport := c.InputPortFactory(userRepository, sessionRepository)
+	err := inputport.DeleteSession(userName)
+	return err
+}

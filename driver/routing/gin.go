@@ -4,6 +4,7 @@ import (
 	controller "go-gameroom/adapter/controller/gin"
 	"go-gameroom/usecase/port"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/olahol/melody.v1"
@@ -30,11 +31,12 @@ func NewGinRouter(roomController controller.RoomController, userController contr
 func (r *GinRouter) setRouting() {
 	r.Gin.Static("/public", "./driver/public")
 	r.Gin.LoadHTMLGlob("./driver/templates/*")
-	loginCheckGroup := r.Gin.Group("/", r.CheckLogin)
+	loginCheckGroup := r.Gin.Group("/", r.MustLogin)
 	{
+		loginCheckGroup.GET("/", r.GetLobby)
 		loginCheckGroup.GET("/lobby", r.GetLobby)
 		loginCheckGroup.GET("/rooms/:roomId", r.GetRoom)
-		loginCheckGroup.DELETE("/rooms/:roomId", r.InitRoom)
+		loginCheckGroup.GET("/logout", r.GetLogout)
 	}
 	logoutCheckGroup := r.Gin.Group("/", r.MustLogout)
 	{
@@ -64,7 +66,12 @@ func (r *GinRouter) GetLobby(c *gin.Context) {
 	})
 
 }
-func (r *GinRouter) GetRoom(c *gin.Context)   {}
-func (r *GinRouter) InitRoom(c *gin.Context)  {}
-func (r *GinRouter) GetLogin(c *gin.Context)  {}
-func (r *GinRouter) PostLogin(c *gin.Context) {}
+func (r *GinRouter) GetRoom(c *gin.Context) {
+	roomIdStr := c.Param("roomId")
+	roomId, _ := strconv.Atoi(roomIdStr)
+	c.HTML(http.StatusOK, "room.tmpl", gin.H{
+		"userName": c.GetString("userName"),
+		"id":       roomId,
+	})
+
+}

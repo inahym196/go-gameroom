@@ -8,14 +8,19 @@ import (
 
 type UserRepository struct{}
 
-var UserDataBase map[string]*entity.User = make(map[string]*entity.User)
+var UserDataBase map[string]*entity.User = map[string]*entity.User{
+	"user1": &entity.User{Name: "user1"},
+	"user2": &entity.User{Name: "user2"},
+	"user3": &entity.User{Name: "user3"},
+	"user4": &entity.User{Name: "user4"},
+}
 
 func NewUserRepository() repository.UserRepository {
 	return &UserRepository{}
 }
 
-func (repo *UserRepository) Get(userId string) (*entity.User, error) {
-	if user, ok := UserDataBase[userId]; ok {
+func (r *UserRepository) Get(userName string) (*entity.User, error) {
+	if user, ok := UserDataBase[userName]; ok {
 		fmt.Printf("%#v", user)
 		return user, nil
 	}

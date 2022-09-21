@@ -33,3 +33,8 @@ func (s *SessionRepository) Create(data string) (*entity.Session, error) {
 	SessionDataBase[session.Id] = session
 	return session, nil
 }
+
+func (s *SessionRepository) Delete(id string) error {
+	delete(SessionDataBase, id)
+	return nil
+}

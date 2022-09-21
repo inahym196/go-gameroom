@@ -30,3 +30,24 @@ func (i *UserInteractor) GetUserBySessionId(sessionId string) (*entity.User, err
 	}
 	return user, nil
 }
+
+func (i *UserInteractor) CreateSession(userName string) (sessionId string, err error) {
+	_, err = i.UserRepository.Get(userName)
+	if err != nil {
+		return "", err
+	}
+	session, err := i.SessionRepository.Create(userName)
+	if err != nil {
+		return "", err
+	}
+	sessionId = session.Id
+	return sessionId, nil
+}
+
+func (i *UserInteractor) DeleteSession(sessionId string) error {
+	err := i.SessionRepository.Delete(sessionId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
