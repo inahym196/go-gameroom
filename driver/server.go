@@ -8,16 +8,16 @@ import (
 )
 
 func Serve(addr string) {
-	roomController := controller.RoomController{
-		RepositoryFactory: gateway.NewRoomRepository,
-		InputPortFactory:  interactor.NewRoomInputPort,
-	}
 	userController := controller.UserController{
 		UserRepositoryFactory:    gateway.NewUserRepository,
 		SessionRepositoryFactory: gateway.NewSessionRepository,
 		InputPortFactory:         interactor.NewUserInputPort,
 	}
+	gameController := controller.GameController{
+		RepositoryFactory: gateway.NewXOGameRepository,
+		InputPortFactory:  interactor.NewXOGameInputPort,
+	}
 	// router := routing.NewHTTPRouter()
-	router := routing.NewGinRouter(roomController, userController)
+	router := routing.NewGinRouter(userController, gameController)
 	router.Run(addr)
 }

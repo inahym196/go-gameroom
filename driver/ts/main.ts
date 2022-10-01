@@ -20,6 +20,13 @@ function isMyTurn(): boolean {
     return false
 }
 
+interface PieceArea {
+    x: number,
+    y: number,
+    length: number,
+    grid: number
+}
+
 function putPieceEvent(e: MouseEvent, ws: WebSocket) {
     const rect = canvas.getBoundingClientRect();
     const clientRatio = canvas.width / canvas.clientWidth
@@ -27,7 +34,7 @@ function putPieceEvent(e: MouseEvent, ws: WebSocket) {
         x: (e.clientX - rect.left) * clientRatio,
         y: (e.clientY - rect.top) * clientRatio,
     }
-    const pieceArea = { x: 70, y: 10, length: 500, grid: 9 }
+    const pieceArea: PieceArea = { x: 70, y: 10, length: 500, grid: 9 }
     if (!(pieceArea.x <= clickPoint.x && clickPoint.x <= pieceArea.x + pieceArea.length) ||
         !(pieceArea.y <= clickPoint.y && clickPoint.y <= pieceArea.y + pieceArea.length)) {
         return
@@ -37,7 +44,7 @@ function putPieceEvent(e: MouseEvent, ws: WebSocket) {
         y: Math.floor((clickPoint.y - pieceArea.y) / (pieceArea.length / (pieceArea.grid + 1))),
     }
     console.log(clickPiece)
-    const putInfo = { 'type': 'put', 'piece': clickPiece };
+    const putInfo = { 'type': 'put', "data": { "putpoint": clickPiece } };
     if (isMyTurn() === true) {
         console.log('send');
         ws.send(JSON.stringify(putInfo));
@@ -57,7 +64,7 @@ let order: 'first' | 'draw' | 'audience';
 ws.onopen = function (event: Event) {
     wsOpened = true;
     console.log("ws connected");
-    const joinInfo = { 'type': 'join' }
+    const joinInfo = { 'type': 'join', "data": { "gameType": "XOGame" } }
     ws.send(JSON.stringify(joinInfo));
 };
 ws.onmessage = function (msg) {
@@ -75,7 +82,74 @@ ws.onmessage = function (msg) {
             case "board":
                 console.log(data);
                 break;
+            case "putresult":
+                console.log(data.data.pieces);
+                const pieces = data.data.pieces;
+                updatePieces(canvas, pieces);
+                break;
         }
     }
 };
 canvas.addEventListener('click', (e) => putPieceEvent(e, ws));
+
+function updatePieces(canvas: HTMLCanvasElement, pieces: string[][]) {
+    const context = canvas.getContext('2d')!;
+    const pieceArea: PieceArea = { x: 70, y: 10, length: 500, grid: 9 };
+    context.save();
+    context.translate(pieceArea.x, pieceArea.y);
+    drawCrossAndCircle(context, pieceArea, pieces, "green");
+    drawCrossAndCircle(context, pieceArea, pieces, "pink");
+    context.restore();
+};
+
+function drawCrossLine(ctx: CanvasRenderingContext2D, x: number, y: number, width: number) {
+    ctx.moveTo(x - width, y - width);
+    ctx.lineTo(x + width, y + width);
+    ctx.moveTo(x - width, y + width);
+    ctx.lineTo(x + width, y - width);
+}
+
+function drawCrossAndCircle(ctx: CanvasRenderingContext2D, pieceArea: PieceArea, pieces: string[][], choice_color: string) {
+    const COLOR: { [index: string]: { normal: string, dark: string } } = {
+        green: {
+            normal: "#90FF3B",
+            dark: "#559723"
+        },
+        pink: {
+            normal: "#FF22FF",
+            dark: "#A723FF"
+        }
+    };
+
+    for (let n = 0; n < 2; n++) {
+        ctx.beginPath();
+        ctx.lineWidth = 10;
+        let shadowX;
+        let shadowY;
+        if (n === 0) {
+            ctx.strokeStyle = COLOR[choice_color].dark;
+            shadowX = 2;
+            shadowY = 3;
+        } else {
+            ctx.strokeStyle = COLOR[choice_color].normal;
+            shadowX = 0;
+            shadowY = 0;
+        }
+        for (let xi = 0; xi < pieceArea.grid + 1; xi++) {
+            for (let yj = 0; yj < pieceArea.grid + 1; yj++) {
+                const piece_shape = pieces[yj][xi];
+                if (piece_shape === '') continue;
+                const scaleWidth = pieceArea.length / (pieceArea.grid + 1);
+                const posX = (scaleWidth / 2) + (scaleWidth * xi) + shadowX;
+                const posY = (scaleWidth / 2) + (scaleWidth * yj) + shadowY;
+                if (piece_shape === "X") {
+                    drawCrossLine(ctx, posX, posY, 15);
+                } else if (piece_shape === "O") {
+                    ctx.moveTo(posX + 15, posY);
+                    ctx.arc(posX, posY, 15, 0, Math.PI * 2, true);
+                }
+            }
+        }
+        ctx.stroke();
+    };
+}

@@ -12,17 +12,18 @@
                     <div class="card-body">
                         <p class="card-text">好きな部屋を選んで入ってください</p>
                         <div class="row">
-                            {{ range .Rooms -}}
+                            {{ range .Games -}}
                             {{ if ne .Id 0 -}}
+                            {{ .Id }}
                             <div class="col px-1">
                                 <div class="card">
                                     <h5 class="card-header">room {{.Id}}</h5>
                                     <div class="card-body">
                                         <p class="card-text">
-                                            {{ if eq .GameStatus "Init" }}空室
-                                            {{ else if eq .GameStatus "Waiting"}}対戦相手待ち...
-                                            {{ else if eq .GameStatus "Starting"}}対戦中...
-                                            {{ else if eq .GameStatus "End"}}対戦終了
+                                            {{ if eq .Status "Init" }}空室
+                                            {{ else if eq .Status "Waiting"}}対戦相手待ち...
+                                            {{ else if eq .Status "Starting"}}対戦中...
+                                            {{ else if eq .Status "End"}}対戦終了
                                             {{ end -}}
                                         </p>
                                         <a href="/rooms/{{.Id}}" class="btn btn-primary">参加</a>

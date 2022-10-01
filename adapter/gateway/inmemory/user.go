@@ -9,10 +9,10 @@ import (
 type UserRepository struct{}
 
 var UserDataBase map[string]*entity.User = map[string]*entity.User{
-	"user1": &entity.User{Name: "user1"},
-	"user2": &entity.User{Name: "user2"},
-	"user3": &entity.User{Name: "user3"},
-	"user4": &entity.User{Name: "user4"},
+	"user1": entity.NewUser("user1"),
+	"user2": entity.NewUser("user2"),
+	"user3": entity.NewUser("user3"),
+	"user4": entity.NewUser("user4"),
 }
 
 func NewUserRepository() repository.UserRepository {

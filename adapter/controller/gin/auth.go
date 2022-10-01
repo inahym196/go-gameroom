@@ -19,7 +19,7 @@ func (c *UserController) GetUserName(sessionId string) (UserName string, err err
 	if err != nil {
 		return "", err
 	}
-	return user.Name, nil
+	return user.GetName(), nil
 }
 
 func (c *UserController) CreateSession(userName string) (string, error) {

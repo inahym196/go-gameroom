@@ -1,6 +1,7 @@
 package routing
 
 import (
+	"fmt"
 	controller "go-gameroom/adapter/controller/gin"
 	"go-gameroom/usecase/port"
 	"net/http"
@@ -10,19 +11,26 @@ import (
 	"gopkg.in/olahol/melody.v1"
 )
 
+type Router interface {
+	Run(addr string)
+}
+
 type GinRouter struct {
 	gin            *gin.Engine
 	melody         *melody.Melody
-	roomController controller.RoomController
 	userController controller.UserController
+	gameController controller.GameController
 }
 
-func NewGinRouter(roomController controller.RoomController, userController controller.UserController) Router {
+func NewGinRouter(
+	userController controller.UserController,
+	gameController controller.GameController,
+) Router {
 	router := &GinRouter{
 		gin:            gin.Default(),
 		melody:         melody.New(),
-		roomController: roomController,
 		userController: userController,
+		gameController: gameController,
 	}
 	router.setRouting()
 	router.setMelodyRouting()
@@ -52,19 +60,21 @@ func (r *GinRouter) Run(addr string) {
 }
 
 func (r *GinRouter) GetLobby(c *gin.Context) {
-	_rooms, err := r.roomController.GetRooms()
+	_games, err := r.gameController.GetGames()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		c.Abort()
 		return
 	}
-	var rooms = make(map[string]port.RoomDto)
-	for i, room := range _rooms {
-		rooms[i] = *room
+	var games = make(map[string]port.GetGameResponse)
+	for i, game := range _games {
+		s := strconv.Itoa(i)
+		games[s] = *game
 	}
+	fmt.Printf("%#v", games)
 	c.HTML(http.StatusOK, "lobby.tmpl", gin.H{
 		"userName": c.GetString("userName"),
-		"Rooms":    rooms,
+		"Games":    games,
 	})
 
 }

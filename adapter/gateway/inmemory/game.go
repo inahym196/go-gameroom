@@ -1,32 +1,34 @@
 package gateway
 
 import (
-	"fmt"
 	"go-gameroom/domain/entity"
+	"go-gameroom/usecase/repository"
 )
 
-type XOGameRepository struct {
-	XOGameData entity.XOGame
-}
+type XOGameRepository struct{}
 
-func NewXOGameRepository() entity.XOGameRepository {
+var GameDataBase []*entity.XOGame = []*entity.XOGame{entity.NewXOGame(0), entity.NewXOGame(1), entity.NewXOGame(2), entity.NewXOGame(3)}
+
+func NewXOGameRepository() repository.XOGameRepository {
 	return &XOGameRepository{}
 }
 
 func (repo *XOGameRepository) Init() error {
-	fmt.Printf("%+v", repo)
 	return nil
 }
 
 func (repo *XOGameRepository) Join(u *entity.User) bool {
-	fmt.Printf("%+v", repo)
 	return true
 }
 
-func (repo *XOGameRepository) Get() (*entity.XOGame, error) {
-	return &entity.XOGame{}, nil
+func (repo *XOGameRepository) GetGame(id int) (*entity.XOGame, error) {
+	return GameDataBase[id], nil
+}
+func (repo *XOGameRepository) GetGames() ([]*entity.XOGame, error) {
+	return GameDataBase, nil
 }
 
-func (repo *XOGameRepository) PutPiece(p *entity.PutPoint) (*entity.XOGame, error) {
-	return &entity.XOGame{}, nil
+func (repo *XOGameRepository) PutPiece(x, y, id int) (*entity.XOGame, error) {
+	GameDataBase[id].SetPiece(x, y, "XG")
+	return GameDataBase[id], nil
 }

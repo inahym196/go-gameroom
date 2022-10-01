@@ -1,31 +1,24 @@
 package port
 
-type GameId = string
-type GameStatus = int
+type Point struct {
+	X, Y int
+}
 
-const (
-	Init GameStatus = iota
-	Waiting
-	Starting
-	End
-)
+func NewPoint(x, y int) *Point {
+	return &Point{X: x, Y: y}
+}
 
-type Game struct {
-	Status GameStatus
+type GetGameResponse struct {
+	Id     int
+	Status string
+}
+
+type PutPieceResponse struct {
+	Pieces *[10][10]string
 }
 
 type XOGameInputPort interface {
-	GetGame()
-}
-
-type XOGame struct {
-	Game
-}
-
-type XOGameOutputPort interface {
-	GetGame(*XOGame)
-}
-
-type GetXOGameResponse struct {
-	Game *XOGame
+	GetGame(id int) (*GetGameResponse, error)
+	GetGames() ([]*GetGameResponse, error)
+	PutPiece(p *Point, id int) (*PutPieceResponse, error)
 }
