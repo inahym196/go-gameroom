@@ -5,6 +5,13 @@
 <body>
     {{ template "header" . }}
     <canvas id="screen"></canvas>
+    <div id="select-order" class="container" style="display: none;">
+        <div class="mx-auto" style="width: 640px">
+            <button type="button" class="btn btn-info" onclick="clickFirstOrder()">先攻</button>
+            <button type="button" class="btn btn-info" onclick="clickDrawOrder()">後攻</button>
+        </div>
+    </div>
+    <div id="status"></div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>

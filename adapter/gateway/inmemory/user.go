@@ -21,7 +21,6 @@ func NewUserRepository() repository.UserRepository {
 
 func (r *UserRepository) Get(userName string) (*entity.User, error) {
 	if user, ok := UserDataBase[userName]; ok {
-		fmt.Printf("%#v", user)
 		return user, nil
 	}
 	return nil, fmt.Errorf("User NotFound")

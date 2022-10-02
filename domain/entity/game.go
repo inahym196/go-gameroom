@@ -8,6 +8,7 @@ type gameStatus string
 
 const (
 	gameInit     = gameStatus("Init")
+	gameSetting  = gameStatus("Setting")
 	gameWaiting  = gameStatus("Waiting")
 	gameStarting = gameStatus("Starting")
 	gameEnd      = gameStatus("End")
@@ -16,6 +17,7 @@ const (
 type Game struct {
 	id     int
 	status gameStatus
+	owner  string
 }
 
 func (g *Game) GetId() int {
@@ -36,13 +38,12 @@ func (g *Game) SetStatus(status string) error {
 	return fmt.Errorf("Status is invalid")
 }
 
-type Point struct {
-	X, Y int
+func (g *Game) GetOwner() string {
+	return g.owner
 }
 
-type XOPlayer struct {
-	order string
-	user  *User
+type Point struct {
+	X, Y int
 }
 
 type XOPiece string
@@ -61,11 +62,16 @@ func (xp *XOPiece) String() string {
 
 type XOGame struct {
 	Game
-	players      [2]*XOPlayer
-	winner       *XOPlayer
+	players      XOPlayers
+	winner       string
 	turn         int
 	lastPutPoint Point
 	pieces       *[10][10]XOPiece
+}
+
+type XOPlayers struct {
+	first string
+	draw  string
 }
 
 func NewXOGame(id int) *XOGame {
@@ -77,7 +83,7 @@ func NewXOGame(id int) *XOGame {
 	}
 	xoGame := &XOGame{pieces: &pieces}
 	xoGame.id = id
-	xoGame.status = "Waiting"
+	xoGame.status = gameInit
 	return xoGame
 }
 
@@ -93,19 +99,110 @@ func (xg *XOGame) SetPiece(x, y int, piece string) (*[10][10]XOPiece, error) {
 	switch setPiece {
 	case PieceOG, PieceOP, PieceXG, PieceXP:
 		xg.pieces[y][x] = setPiece
+		xg.SetNextTurn()
 	default:
 		return nil, fmt.Errorf("Invalid piece type")
 	}
 	return xg.pieces, nil
 }
 
-type Player struct {
-	user  *User
-	order string
+func (xg *XOGame) GetPlayers() (string, string) {
+	return string(xg.players.first), string(xg.players.draw)
 }
 
-func NewPlayer(userName string) *Player {
-	return &Player{
-		user: &User{},
+func (xg *XOGame) SetPlayer(user string, order string) error {
+	if xg.owner == "" && xg.owner != user {
+		return fmt.Errorf("owner not exists")
 	}
+	if order == "first" {
+		if xg.players.first != "" {
+			return fmt.Errorf("already exists first")
+		}
+		xg.players.first = user
+		xg.updateStatus()
+	} else if order == "draw" {
+		if xg.players.draw != "" {
+			return fmt.Errorf("already esists draw")
+		}
+		xg.players.draw = user
+		xg.updateStatus()
+	} else {
+		return fmt.Errorf("order syntax errror")
+	}
+	return nil
+}
+
+func (xg *XOGame) updateStatus() {
+	players := xg.players
+	if xg.winner != "" {
+		fmt.Println("status: gameEnd")
+		xg.status = gameEnd
+	} else if xg.owner == "" {
+		xg.status = gameInit
+		fmt.Println("status: gameInit")
+	} else if players.first == "" && players.draw == "" {
+		xg.status = gameSetting
+		fmt.Println("status: gameSetting")
+	} else if players.first == "" || players.draw == "" {
+		xg.status = gameWaiting
+		fmt.Println("status: gameWaiting")
+	} else if players.first != "" && players.draw != "" {
+		xg.status = gameStarting
+		fmt.Println("status: gameStarting")
+	}
+}
+
+func (xg *XOGame) BecomeOwner(user string) error {
+	if xg.owner != "" {
+		return fmt.Errorf("owner already exists")
+	}
+	xg.owner = user
+	xg.updateStatus()
+	return nil
+}
+
+func (xg *XOGame) GetOrder(user string) string {
+	players := xg.players
+	if players.first == user {
+		return "first"
+	} else if players.draw == user {
+		return "draw"
+	}
+	return ""
+}
+
+func (xg *XOGame) GetPlayerByOrder(order string) string {
+	if order == "first" {
+		return xg.players.first
+	} else if order == "draw" {
+		return xg.players.draw
+	}
+	return ""
+}
+
+func (xg *XOGame) GetTurn() int {
+	return xg.turn
+}
+
+func (xg *XOGame) SetNextTurn() {
+	xg.turn = xg.turn + 1
+}
+
+func (xg *XOGame) GetNextPiece() string {
+	turn := xg.GetTurn()
+	var piece XOPiece
+	if turn%2 == 0 {
+		if turn%8 == 6 {
+			piece = PieceOG
+		} else {
+			piece = PieceOP
+		}
+	} else {
+		if turn%8 == 7 {
+			piece = PieceXP
+		} else {
+			piece = PieceXG
+		}
+	}
+	return string(piece)
 }

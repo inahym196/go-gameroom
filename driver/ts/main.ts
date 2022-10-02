@@ -1,4 +1,35 @@
 
+type WSSendType = 'join' | 'put' | "select-order" | 'request-info'
+
+class WSSendData {
+    type: WSSendType
+    data: { [key: string]: any }
+    constructor(type: WSSendType, data: { [key: string]: any }) {
+        this.type = type
+        this.data = data
+    }
+    ToString(): string {
+        const data: { [key: string]: any } = { "type": this.type, "data": this.data }
+        return JSON.stringify(data)
+    }
+}
+
+type Status = "Selecting..." | "Waiting..." | "Game End"
+
+function clickFirstOrder() {
+    const sendData = new WSSendData('select-order', { 'order': 'first' })
+    ws.send(sendData.ToString())
+    console.log(sendData.ToString())
+    document.getElementById("select-order")!.style.display = "none"
+}
+
+function clickDrawOrder() {
+    const sendData = new WSSendData('select-order', { 'order': 'draw' })
+    ws.send(sendData.ToString())
+    console.log(sendData.ToString())
+    document.getElementById("select-order")!.style.display = "none"
+}
+
 function initCanvas(canvas: HTMLCanvasElement) {
     const context = canvas.getContext('2d')!;
     const board_image = new Image()
@@ -10,6 +41,7 @@ function initCanvas(canvas: HTMLCanvasElement) {
     }
 }
 function isMyTurn(): boolean {
+    console.log({ turn, order })
     if (turn === undefined || order === undefined) {
         return false
     } else if (turn % 2 === 0 && order === 'first') {
@@ -60,34 +92,47 @@ const url = "ws://" + window.location.host + window.location.pathname + "/ws";
 const ws = new WebSocket(url);
 var wsOpened = false;
 let turn: number;
-let order: 'first' | 'draw' | 'audience';
+type orderType = 'first' | 'draw' | 'audience'
+let order: orderType
+let boardStatus: "Init" | "Setting" | "Waiting" | "Starting" | "End" | undefined
+let hasOwn: boolean = false
 ws.onopen = function (event: Event) {
     wsOpened = true;
     console.log("ws connected");
-    const joinInfo = { 'type': 'join', "data": { "gameType": "XOGame" } }
-    ws.send(JSON.stringify(joinInfo));
+    const sendData = new WSSendData("join", {})
+    ws.send(JSON.stringify(sendData));
 };
 ws.onmessage = function (msg) {
-    if (msg.data) {
-        const data = JSON.parse(msg.data);
-        console.log(data);
-        if (data.turn !== undefined) {
-            turn = data.turn
-        }
-        switch (data.Type) {
-            case "join":
-                turn = data.Board.turn;
-                order = data.Order;
-                break;
-            case "board":
-                console.log(data);
-                break;
-            case "putresult":
-                console.log(data.data.pieces);
-                const pieces = data.data.pieces;
-                updatePieces(canvas, pieces);
-                break;
-        }
+    if (msg.data === undefined) return
+    const data = JSON.parse(msg.data);
+    console.log(data);
+
+    switch (data.Type) {
+        case "putresult":
+            const pieces = data.data.pieces;
+            order = data.data.order || order
+            turn = data.data.turn || turn
+            console.log(data.data.turn, turn)
+            updatePieces(canvas, pieces);
+            break
+        case "board-info":
+            console.log("board-info")
+            boardStatus = data.data.status
+            order = data.data.order
+            turn = data.data.turn
+            console.log(data.data.turn, turn)
+            switch (boardStatus) {
+                case "Setting":
+                    hasOwn = data.data.owner
+                    if (hasOwn === true) {
+                        document.getElementById("select-order")!.style.display = "block"
+                        document.getElementById("status")!.innerHTML = "Select order"
+                    } else {
+                        document.getElementById("select-order")!.style.display = "none"
+                        document.getElementById("status")!.innerHTML = "Opponent selecting order"
+                    }
+                    break
+            }
     }
 };
 canvas.addEventListener('click', (e) => putPieceEvent(e, ws));
@@ -137,14 +182,16 @@ function drawCrossAndCircle(ctx: CanvasRenderingContext2D, pieceArea: PieceArea,
         }
         for (let xi = 0; xi < pieceArea.grid + 1; xi++) {
             for (let yj = 0; yj < pieceArea.grid + 1; yj++) {
-                const piece_shape = pieces[yj][xi];
-                if (piece_shape === '') continue;
+                const piece = pieces[yj][xi]
+                if (piece === 'None' ||
+                    choice_color === 'green' && piece.match(/P/) ||
+                    choice_color === "pink" && piece.match(/G/)) continue
                 const scaleWidth = pieceArea.length / (pieceArea.grid + 1);
                 const posX = (scaleWidth / 2) + (scaleWidth * xi) + shadowX;
                 const posY = (scaleWidth / 2) + (scaleWidth * yj) + shadowY;
-                if (piece_shape === "X") {
+                if (piece.match(/X/)) {
                     drawCrossLine(ctx, posX, posY, 15);
-                } else if (piece_shape === "O") {
+                } else if (piece.match(/O/)) {
                     ctx.moveTo(posX + 15, posY);
                     ctx.arc(posX, posY, 15, 0, Math.PI * 2, true);
                 }

@@ -9,5 +9,8 @@ func NewUser(name string) *User {
 }
 
 func (u *User) GetName() string {
+	if u == nil {
+		return ""
+	}
 	return u.name
 }
