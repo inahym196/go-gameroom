@@ -129,7 +129,6 @@ function updatePieces(canvas, pieces) {
     drawCrossAndCircle(context, pieceArea, pieces, "pink");
     context.restore();
 }
-;
 function drawCrossLine(ctx, x, y, width) {
     ctx.moveTo(x - width, y - width);
     ctx.lineTo(x + width, y + width);
@@ -183,5 +182,4 @@ function drawCrossAndCircle(ctx, pieceArea, pieces, choice_color) {
         }
         ctx.stroke();
     }
-    ;
 }

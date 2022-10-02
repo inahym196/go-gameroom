@@ -31,7 +31,7 @@ function clickDrawOrder() {
 }
 
 function initCanvas(canvas: HTMLCanvasElement) {
-    const context = canvas.getContext('2d')!;
+    const context = canvas.getContext('2d')!
     const board_image = new Image()
     board_image.src = '/public/images/board.png'
     board_image.onload = () => {
@@ -60,7 +60,7 @@ interface PieceArea {
 }
 
 function putPieceEvent(e: MouseEvent, ws: WebSocket) {
-    const rect = canvas.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect()
     const clientRatio = canvas.width / canvas.clientWidth
     const clickPoint = {
         x: (e.clientX - rect.left) * clientRatio,
@@ -76,44 +76,44 @@ function putPieceEvent(e: MouseEvent, ws: WebSocket) {
         y: Math.floor((clickPoint.y - pieceArea.y) / (pieceArea.length / (pieceArea.grid + 1))),
     }
     console.log(clickPiece)
-    const putInfo = { 'type': 'put', "data": { "putpoint": clickPiece } };
+    const putInfo = { 'type': 'put', "data": { "putpoint": clickPiece } }
     if (isMyTurn() === true) {
-        console.log('send');
-        ws.send(JSON.stringify(putInfo));
+        console.log('send')
+        ws.send(JSON.stringify(putInfo))
     }
     else {
-        console.log('not send');
+        console.log('not send')
     }
 }
 
 const canvas = <HTMLCanvasElement>document.getElementById('screen')!
 initCanvas(canvas)
-const url = "ws://" + window.location.host + window.location.pathname + "/ws";
-const ws = new WebSocket(url);
-var wsOpened = false;
-let turn: number;
+const url = "ws://" + window.location.host + window.location.pathname + "/ws"
+const ws = new WebSocket(url)
+var wsOpened = false
+let turn: number
 type orderType = 'first' | 'draw' | 'audience'
 let order: orderType
 let boardStatus: "Init" | "Setting" | "Waiting" | "Starting" | "End" | undefined
 let hasOwn: boolean = false
 ws.onopen = function (event: Event) {
-    wsOpened = true;
-    console.log("ws connected");
+    wsOpened = true
+    console.log("ws connected")
     const sendData = new WSSendData("join", {})
-    ws.send(JSON.stringify(sendData));
-};
+    ws.send(JSON.stringify(sendData))
+}
 ws.onmessage = function (msg) {
     if (msg.data === undefined) return
-    const data = JSON.parse(msg.data);
-    console.log(data);
+    const data = JSON.parse(msg.data)
+    console.log(data)
 
     switch (data.Type) {
         case "putresult":
-            const pieces = data.data.pieces;
+            const pieces = data.data.pieces
             order = data.data.order || order
             turn = data.data.turn || turn
             console.log(data.data.turn, turn)
-            updatePieces(canvas, pieces);
+            updatePieces(canvas, pieces)
             break
         case "board-info":
             console.log("board-info")
@@ -134,24 +134,24 @@ ws.onmessage = function (msg) {
                     break
             }
     }
-};
-canvas.addEventListener('click', (e) => putPieceEvent(e, ws));
+}
+canvas.addEventListener('click', (e) => putPieceEvent(e, ws))
 
 function updatePieces(canvas: HTMLCanvasElement, pieces: string[][]) {
-    const context = canvas.getContext('2d')!;
-    const pieceArea: PieceArea = { x: 70, y: 10, length: 500, grid: 9 };
-    context.save();
-    context.translate(pieceArea.x, pieceArea.y);
-    drawCrossAndCircle(context, pieceArea, pieces, "green");
-    drawCrossAndCircle(context, pieceArea, pieces, "pink");
-    context.restore();
-};
+    const context = canvas.getContext('2d')!
+    const pieceArea: PieceArea = { x: 70, y: 10, length: 500, grid: 9 }
+    context.save()
+    context.translate(pieceArea.x, pieceArea.y)
+    drawCrossAndCircle(context, pieceArea, pieces, "green")
+    drawCrossAndCircle(context, pieceArea, pieces, "pink")
+    context.restore()
+}
 
 function drawCrossLine(ctx: CanvasRenderingContext2D, x: number, y: number, width: number) {
-    ctx.moveTo(x - width, y - width);
-    ctx.lineTo(x + width, y + width);
-    ctx.moveTo(x - width, y + width);
-    ctx.lineTo(x + width, y - width);
+    ctx.moveTo(x - width, y - width)
+    ctx.lineTo(x + width, y + width)
+    ctx.moveTo(x - width, y + width)
+    ctx.lineTo(x + width, y - width)
 }
 
 function drawCrossAndCircle(ctx: CanvasRenderingContext2D, pieceArea: PieceArea, pieces: string[][], choice_color: string) {
@@ -164,21 +164,21 @@ function drawCrossAndCircle(ctx: CanvasRenderingContext2D, pieceArea: PieceArea,
             normal: "#FF22FF",
             dark: "#A723FF"
         }
-    };
+    }
 
     for (let n = 0; n < 2; n++) {
-        ctx.beginPath();
-        ctx.lineWidth = 10;
-        let shadowX;
-        let shadowY;
+        ctx.beginPath()
+        ctx.lineWidth = 10
+        let shadowX
+        let shadowY
         if (n === 0) {
-            ctx.strokeStyle = COLOR[choice_color].dark;
-            shadowX = 2;
-            shadowY = 3;
+            ctx.strokeStyle = COLOR[choice_color].dark
+            shadowX = 2
+            shadowY = 3
         } else {
-            ctx.strokeStyle = COLOR[choice_color].normal;
-            shadowX = 0;
-            shadowY = 0;
+            ctx.strokeStyle = COLOR[choice_color].normal
+            shadowX = 0
+            shadowY = 0
         }
         for (let xi = 0; xi < pieceArea.grid + 1; xi++) {
             for (let yj = 0; yj < pieceArea.grid + 1; yj++) {
@@ -186,17 +186,17 @@ function drawCrossAndCircle(ctx: CanvasRenderingContext2D, pieceArea: PieceArea,
                 if (piece === 'None' ||
                     choice_color === 'green' && piece.match(/P/) ||
                     choice_color === "pink" && piece.match(/G/)) continue
-                const scaleWidth = pieceArea.length / (pieceArea.grid + 1);
-                const posX = (scaleWidth / 2) + (scaleWidth * xi) + shadowX;
-                const posY = (scaleWidth / 2) + (scaleWidth * yj) + shadowY;
+                const scaleWidth = pieceArea.length / (pieceArea.grid + 1)
+                const posX = (scaleWidth / 2) + (scaleWidth * xi) + shadowX
+                const posY = (scaleWidth / 2) + (scaleWidth * yj) + shadowY
                 if (piece.match(/X/)) {
-                    drawCrossLine(ctx, posX, posY, 15);
+                    drawCrossLine(ctx, posX, posY, 15)
                 } else if (piece.match(/O/)) {
-                    ctx.moveTo(posX + 15, posY);
-                    ctx.arc(posX, posY, 15, 0, Math.PI * 2, true);
+                    ctx.moveTo(posX + 15, posY)
+                    ctx.arc(posX, posY, 15, 0, Math.PI * 2, true)
                 }
             }
         }
-        ctx.stroke();
-    };
+        ctx.stroke()
+    }
 }
